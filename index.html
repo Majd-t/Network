@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilgisayar Ağları Ana Sayfası</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); /* Dark network-inspired gradient */
+            min-height: 100vh;
+            padding: 20px;
+            color: #e2e8f0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Network-inspired background animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.2)"/></svg>') repeat;
+            opacity: 0.1;
+            animation: networkFlow 20s linear infinite;
+        }
+
+        @keyframes networkFlow {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.95); /* Dark semi-transparent background */
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: linear-gradient(45deg, #1d4ed8, #7c3aed); /* Vibrant blue-purple gradient */
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.2;
+            animation: pulse 5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.4; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+            font-weight: 700;
+            position: relative;
+        }
+
+        .content {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .content p {
+            font-size: 1.2em;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .exams-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .exam-link {
+            display: block;
+            padding: 15px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: rgba(51, 65, 85, 0.7); /* Dark option background */
+            color: #e2e8f0;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exam-link:hover {
+            border-color: #22d3ee;
+            background: rgba(51, 65, 85, 0.9);
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(34, 211, 238, 0.3);
+        }
+
+        .exam-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><line x1="0" y1="10" x2="20" y2="10" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><line x1="10" y1="0" x2="10" y2="20" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>') repeat;
+            opacity: 0.2;
+        }
+
+        .exam-link::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s linear infinite;
+            opacity: 0;
+        }
+
+        .exam-link:hover::after {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .content p {
+                font-size: 1.1em;
+            }
+            
+            .exam-link {
+                font-size: 1em;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bilgisayar Ağları 🌐</h1>
+        </div>
+        <div class="content">
+            <p>
+                Bilgisayar Ağları dersine hoş geldiniz! Bu sayfa, ağ teknolojileri ve protokolleri hakkında bilgi edinmenizi sağlayacak interaktif sınavlara erişim sunar. Aşağıdaki sınavlarla bilginizi test edebilir ve ağ dünyasındaki becerilerinizi geliştirebilirsiniz.
+            </p>
+            <div class="exams-list">
+                <a href="sinav1.html" class="exam-link">Birinci Sınav</a>
+                <a href="#" class="exam-link">İkinci Sınav</a>
+                
+                <!-- يمكنك إضافة المزيد من الروابط يدويًا هنا -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>

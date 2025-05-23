@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İnteraktif Bilgisayar Ağları Sınavı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); /* Dark network-inspired gradient */
+            min-height: 100vh;
+            padding: 20px;
+            color: #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Network-inspired background animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.2)"/></svg>') repeat;
+            opacity: 0.1;
+            animation: networkFlow 20s linear infinite;
+        }
+
+        @keyframes networkFlow {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.95); /* Dark semi-transparent background */
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(45deg, #1d4ed8, #7c3aed); /* Vibrant blue-purple gradient */
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.2;
+            animation: pulse 5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.4; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+            position: relative;
+            font-weight: 700;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 5px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(45deg, #22d3ee, #06b6d4); /* Cyan network-like glow */
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            width: 0%;
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .quiz-container {
+            padding: 40px;
+        }
+
+        .question-card {
+            background: rgba(30, 41, 59, 0.9); /* Dark card with subtle transparency */
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            border-color: #3b82f6;
+        }
+
+        .question-number {
+            background: linear-gradient(45deg, #1d4ed8, #7c3aed);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #e2e8f0;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(51, 65, 85, 0.7); /* Dark option background */
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: #22d3ee;
+            background: rgba(51, 65, 85, 0.9);
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(34, 211, 238, 0.3);
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><line x1="0" y1="10" x2="20" y2="10" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><line x1="10" y1="0" x2="10" y2="20" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>') repeat;
+            opacity: 0.2;
+        }
+
+        .option.selected {
+            border-color: #22d3ee;
+            background: rgba(71, 85, 105, 0.9);
+        }
+
+        .option.correct {
+            background: linear-gradient(45deg, #22c55e, #16a34a);
+            color: white;
+            border-color: #22c55e;
+            animation: correctPulse 0.6s ease;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+        }
+
+        .option.incorrect {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            color: white;
+            border-color: #ef4444;
+            animation: incorrectShake 0.6s ease;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 30px;
+            color: #e2e8f0;
+        }
+
+        .next-btn {
+            background: linear-gradient(45deg, #1d4ed8, #7c3aed);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(29, 78, 216, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(29, 78, 216, 0.6);
+            background: linear-gradient(45deg, #1e40af, #6d28d9);
+        }
+
+        .next-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s linear infinite;
+            opacity: 0;
+        }
+
+        .next-btn:hover::after {
+            opacity: 1;
+        }
+
+        .next-btn:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .results {
+            text-align: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.3;
+            animation: pulse 5s ease-in-out infinite;
+        }
+
+        .score-excellent {
+            background: linear-gradient(45deg, #22c55e, #16a34a);
+        }
+
+        .score-good {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+        }
+
+        .score-average {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+        }
+
+        .score-poor {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+        }
+
+        .results h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #e2e8f0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-details {
+            font-size: 1.3em;
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #1d4ed8, #7c3aed);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(29, 78, 216, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(29, 78, 216, 0.6);
+            background: linear-gradient(45deg, #1e40af, #6d28d9);
+        }
+
+        .restart-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s linear infinite;
+            opacity: 0;
+        }
+
+        .restart-btn:hover::after {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .quiz-container {
+                padding: 20px;
+            }
+            
+            .question-text {
+                font-size: 1.1em;
+            }
+            
+            .score-circle {
+                width: 150px;
+                height: 150px;
+                font-size: 2.5em;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bilgisayar Ağları Sınavı 🌐</h1>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer" class="quiz-container">
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Sonraki Soru</button>
+            </div>
+        </div>
+
+        <div id="resultsContainer" class="results hidden">
+            <div class="score-circle" id="scoreCircle">
+                <span id="scorePercentage"></span>
+            </div>
+            <h2 id="resultTitle"></h2>
+            <div class="results-details" id="resultDetails"></div>
+            <button class="restart-btn" onclick="restartQuiz()">Sınavı Yeniden Başlat</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "MAC adresi kaç bitliktir?",
+                options: ["32 bit", "48 bit", "64 bit", "128 bit", "256 bit"],
+                correct: 1
+            },
+            {
+                question: "MAC adresi hangi bellekte saklanır?",
+                options: ["RAM", "Cache", "ROM", "SSD", "Flash"],
+                correct: 2
+            },
+            {
+                question: "Aşağıdakilerden hangisi MAC adresi gösterim biçimlerinden biri değildir?",
+                options: ["01-03-A3-45-D4-AE", "01:03:A3:45:D4:AE", "0103.A345.D4AE", "01.03.45.A3.D4.AE", "0123.4567.89AB"],
+                correct: 3
+            },
+            {
+                question: "Ethernet çerçevesinin maksimum boyutu nedir?",
+                options: ["512 Byte", "1024 Byte", "1518 Byte", "2048 Byte", "4096 Byte"],
+                correct: 2
+            },
+            {
+                question: "Ethernet çerçevesinin minimum boyutu nedir?",
+                options: ["32 Byte", "48 Byte", "64 Byte", "96 Byte", "128 Byte"],
+                correct: 2
+            },
+            {
+                question: "Hub cihazı veri paketlerini nasıl iletir?",
+                options: ["Sadece hedef porta", "Tüm portlara", "Yönlendiriciye", "Ana cihadze", "Sadece çıkış porta"],
+                correct: 1
+            },
+            {
+                question: "Switch cihazı hangi katmanda çalışır?",
+                options: ["Fiziksel Katman", "Veri Bağı Katmanı", "Ağ Katmanı", "Taşıma Katmanı", "Uygulama Katmanı"],
+                correct: 1
+            },
+            {
+                question: "Switch cihazı hangi özelliği sağlar?",
+                options: ["Çarpışma", "Yavaş erişim", "Full-Duplex", "Broadcast", "Statik yönlendirme"],
+                correct: 2
+            },
+            {
+                question: "Bilgisayar hedef MAC adresini bilmediğinde ne yapar?",
+                options: ["Ping gönderir", "DNS kullanır", "ARP isteği yollar", "Switch'e sorar", "IP değiştirir"],
+                correct: 2
+            },
+            {
+                question: "ARP protokolü ne işe yarar?",
+                options: ["IP adresi bulmak", "MAC adresi bulmak", "Port numarası bulmak", "Subnet mask öğrenmek", "Hostname çözümlemek"],
+                correct: 1
+            },
+            {
+                question: "OSPF protokolünde 'Area 0' ne anlama gelir?",
+                options: ["Yedek ağ", "Ana omurga alanı", "Varsayılan ağ geçidi", "Yönlendirme tablosu", "IP geçidi"],
+                correct: 1
+            },
+            {
+                question: "EIGRP protokolü yönlendirme kararlarını neye göre verir?",
+                options: ["Sadece IP adresine göre", "MAC adresine göre", "Birden fazla metriğe göre", "DNS kayıtlarına göre", "Yalnızca ağ adresine göre"],
+                correct: 2
+            },
+            {
+                question: "Bir yönlendiricide EIGRP nasıl etkinleştirilir?",
+                options: ["router rip", "router ospf", "router eigrp 10", "enable eigrp", "eigrp aktif"],
+                correct: 2
+            },
+            {
+                question: "show ip eigrp neighbors komutu ne işe yarar?",
+                options: ["Yönlendirme tablosunu gösterir", "Ağ geçitlerini listeler", "EIGRP komşularını gösterir", "Hataları düzeltir", "Trafiği sıfırlar"],
+                correct: 2
+            },
+            {
+                question: "RIP protokolünün maksimum hop sayısı kaçtır?",
+                options: ["5", "10", "15", "20", "25"],
+                correct: 2
+            },
+            {
+                question: "Router konfigürasyon moduna geçmek için hangi komut kullanılır?",
+                options: ["enable configure", "conf enable", "configure terminal", "router config", "terminal enable"],
+                correct: 2
+            },
+            {
+                question: "Bir arayüzü etkinleştirmek için hangi komut kullanılır?",
+                options: ["shutdown", "interface reset", "no shutdown", "enable port", "activate interface"],
+                correct: 2
+            },
+            {
+                question: "RIP yapılandırmasında ağ eklemek için hangi komut kullanılır?",
+                options: ["add network", "rip network", "network [adres]", "route add", "ip route"],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = -1;
+        let answered = false;
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.onclick = () => selectAnswer(index);
+                optionDiv.innerHTML = `
+                    <span class="option-label">${String.fromCharCode(65 + index)})</span>
+                    <span>${option}</span>
+                `;
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            updateProgressBar();
+            document.getElementById('nextBtn').disabled = true;
+            selectedAnswer = -1;
+            answered = false;
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            
+            selectedAnswer = index;
+            const options = document.querySelectorAll('.option');
+            const question = questions[currentQuestion];
+            
+            // Clear previous selections
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Mark selected option
+            options[index].classList.add('selected');
+            
+            // Show correct/incorrect after a brief delay
+            setTimeout(() => {
+                answered = true;
+                
+                options.forEach((opt, i) => {
+                    if (i === question.correct) {
+                        opt.classList.add('correct');
+                    } else if (i === selectedAnswer && i !== question.correct) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+                
+                if (selectedAnswer === question.correct) {
+                    score++;
+                }
+                
+                document.getElementById('nextBtn').disabled = false;
+            }, 500);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            const scoreCircle = document.getElementById('scoreCircle');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDetails = document.getElementById('resultDetails');
+            
+            document.getElementById('scorePercentage').textContent = percentage + '%';
+            resultDetails.textContent = `${questions.length} sorudan ${score} tanesini doğru cevapladınız`;
+            
+            // Set color and message based on score
+            if (percentage >= 90) {
+                scoreCircle.className = 'score-circle score-excellent';
+                resultTitle.textContent = 'Mükemmel! 🎉';
+            } else if (percentage >= 70) {
+                scoreCircle.className = 'score-circle score-good';
+                resultTitle.textContent = 'Çok İyi! 👏';
+            } else if (percentage >= 50) {
+                scoreCircle.className = 'score-circle score-average';
+                resultTitle.textContent = 'Fena Değil 👍';
+            } else {
+                scoreCircle.className = 'score-circle score-poor';
+                resultTitle.textContent = 'Geliştirme Gerekli 📚';
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            displayQuestion();
+        }
+
+        // Initialize quiz
+        displayQuestion();
+    </script>
+</body>
+</html>
