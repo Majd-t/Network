@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İnteraktif Bilgisayar Ağları Sınavı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1127 0%, #2e1a47 100%); /* Deep purple-dark gradient */
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e7ff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Network-inspired background animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="2" fill="rgba(139,92,246,0.3)"/></svg>') repeat;
+            opacity: 0.2;
+            animation: networkFlow 12s linear infinite;
+        }
+
+        @keyframes networkFlow {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(17, 24, 39, 0.95); /* Deep dark semi-transparent */
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: linear-gradient(45deg, #7c3aed, #db2777); /* Vibrant purple to neon pink */
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.25;
+            animation: pulse 3.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.25; }
+            50% { opacity: 0.5; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5), 0 0 5px rgba(219, 39, 119, 0.5);
+            font-weight: 700;
+            position: relative;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 5px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(45deg, #db2777, #ec4899); /* Neon pink gradient */
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            width: 0%;
+            box-shadow: 0 0 15px rgba(219, 39, 119, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 1.2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .quiz-container {
+            padding: 40px;
+        }
+
+        .question-card {
+            background: rgba(31, 41, 55, 0.9); /* Dark card with subtle transparency */
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            border-color: #db2777;
+        }
+
+        .question-number {
+            background: linear-gradient(45deg, #7c3aed, #db2777);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #e0e7ff;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(51, 65, 85, 0.7); /* Dark option background */
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: #db2777;
+            background: rgba(51, 65, 85, 0.9);
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(219, 39, 119, 0.4);
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><line x1="0" y1="10" x2="20" y2="10" stroke="rgba(139,92,246,0.3)" stroke-width="1"/><line x1="10" y1="0" x2="10" y2="20" stroke="rgba(139,92,246,0.3)" stroke-width="1"/></svg>') repeat;
+            opacity: 0.25;
+        }
+
+        .option.selected {
+            border-color: #db2777;
+            background: rgba(71, 85, 105, 0.9);
+        }
+
+        .option.correct {
+            background: linear-gradient(45deg, #22c55e, #16a34a); /* Green for correct */
+            color: white;
+            border-color: #22c55e;
+            animation: correctPulse 0.6s ease;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+        }
+
+        .option.incorrect {
+            background: linear-gradient(45deg, #ef4444, #dc2626); /* Red for incorrect */
+            color: white;
+            border-color: #ef4444;
+            animation: incorrectShake 0.6s ease;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 30px;
+            color: #e0e7ff;
+        }
+
+        .next-btn {
+            background: linear-gradient(45deg, #7c3aed, #db2777);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(219, 39, 119, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(219, 39, 119, 0.6);
+            background: linear-gradient(45deg, #6d28d9, #ec4899);
+        }
+
+        .next-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(219, 39, 119, 0.4), transparent);
+            animation: shimmer 1.2s linear infinite;
+            opacity: 0;
+        }
+
+        .next-btn:hover::after {
+            opacity: 1;
+        }
+
+        .next-btn:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .results {
+            text-align: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.3;
+            animation: pulse 3.5s ease-in-out infinite;
+        }
+
+        .score-excellent {
+            background: linear-gradient(45deg, #22c55e, #16a34a);
+        }
+
+        .score-good {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+        }
+
+        .score-average {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+        }
+
+        .score-poor {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+        }
+
+        .results h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #e0e7ff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-details {
+            font-size: 1.3em;
+            color: #c7d2fe;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #7c3aed, #db2777);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(219, 39, 119, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(219, 39, 119, 0.6);
+            background: linear-gradient(45deg, #6d28d9, #ec4899);
+        }
+
+        .restart-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(219, 39, 119, 0.4), transparent);
+            animation: shimmer 1.2s linear infinite;
+            opacity: 0;
+        }
+
+        .restart-btn:hover::after {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .quiz-container {
+                padding: 20px;
+            }
+            
+            .question-text {
+                font-size: 1.1em;
+            }
+            
+            .score-circle {
+                width: 150px;
+                height: 150px;
+                font-size: 2.5em;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bilgisayar Ağları Sınavı 🌐</h1>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer" class="quiz-container">
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Sonraki Soru</button>
+            </div>
+        </div>
+
+        <div id="resultsContainer" class="results hidden">
+            <div class="score-circle" id="scoreCircle">
+                <span id="scorePercentage"></span>
+            </div>
+            <h2 id="resultTitle"></h2>
+            <div class="results-details" id="resultDetails"></div>
+            <button class="restart-btn" onclick="restartQuiz()">Sınavı Yeniden Başlat</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "SONET ve SDH arasındaki temel fark nedir?",
+                options: ["İletim hızı", "Protokol", "Kullanılan ortam", "Amacı"],
+                correct: 1
+            },
+            {
+                question: "Bir VLAN'dan diğerine trafik yönlendirmek için hangi IP protokolü kullanılır?",
+                options: ["IPsec", "ICMP", "OSPF", "IP"],
+                correct: 3
+            },
+            {
+                question: "VLAN'lar arası yönlendirme konfigürasyonunda hangisi doğrudur?",
+                options: ["İki VLAN’nın aynı IP alt ağında olması gereklidir.", "Farklı VLAN’lar farklı IP alt ağlarına sahip olmalıdır.", "VLAN ID’leri aynı olmalıdır.", "VLAN Trunk’ları kullanılmaz."],
+                correct: 1
+            },
+            {
+                question: "VLAN'lar arası yönlendirme için kullanılan cihazın hangi özelliği önemlidir?",
+                options: ["CPU hızı", "Bellek boyutu", "İşletim sistemi sürümü", "Arayüz sayısı"],
+                correct: 3
+            },
+            {
+                question: "Aşağıdakilerden hangisi WAN bağlantı teknolojilerinden devre-anahtarlama yöntemini kullanır?",
+                options: ["ISDN", "T1/E3", "ATM", "Metro Ethernet"],
+                correct: 0
+            },
+            {
+                question: "Aşağıdakilerden hangisi WAN bağlantı teknolojilerinden geniş bant teknolojisini kullanır?",
+                options: ["DSL", "PSTN", "ATM", "Frame Relay"],
+                correct: 0
+            },
+            {
+                question: "DWDM’nin temel amacı nedir?",
+                options: ["Fiber optik ağların hızını artırmak", "Veri iletimini şifrelemek", "Kablosuz iletişimi sağlamak", "Elektrik enerjisi iletmek"],
+                correct: 0
+            },
+            {
+                question: "SONET ve SDH’nin temel amacı nedir?",
+                options: ["Ses ve video iletimi", "Yüksek hızlı veri iletimi", "Elektrik enerjisi dağıtımı", "Uzaktan kontrol"],
+                correct: 1
+            },
+            {
+                question: "Proxy ARP nedir?",
+                options: ["Bir cihazın ARP sorgusuna kendi MAC adresiyle cevap vermesi", "Bir router'ın başka bir alt ağdaki bir cihaz için ARP sorgusuna cevap vermesi", "ARP sorgularının başka bir cihaza yönlendirilmesi", "ARP mesajlarının şifrelenmesi"],
+                correct: 1
+            },
+            {
+                question: "ARP işlemi sırasında cihazlar hangi katmanda iletişim kurar?",
+                options: ["Fiziksel katman", "Veri bağlantı katmanı", "Ağ katmanı", "Taşıma katmanı"],
+                correct: 1
+            },
+            {
+                question: "Hangi NAT türü, bir iç IP adresinin yalnızca belirli bir dış IP adresine eşlemesini sağlar?",
+                options: ["Dinamik NAT", "Statik NAT", "PAT", "Port yönlendirme"],
+                correct: 1
+            },
+            {
+                question: "IP ile ilgili olarak, port numaralarının hangi aralıkta olduğu doğrudur?",
+                options: ["0-1023", "1024-49151", "49152-65535", "0-65535"],
+                correct: 3
+            },
+            {
+                question: "Bir iç ağ cihazının belirli bir dış IP adresine ve port numarasına gelen trafiği almasını sağlamak için hangi NAT özelliği kullanılır?",
+                options: ["Dinamik NAT", "Statik NAT", "PAT", "Port yönlendirme"],
+                correct: 3
+            },
+            {
+                question: "Hangi komut başlangıç yapılandırma dosyasını RAM’e çalışan yapılandırma dosyası olarak kopyalar?",
+                options: ["copy startup-config running-config", "copy running-config startup-config", "copy tftp startup-config", "copy running-config tftp"],
+                correct: 0
+            },
+            {
+                question: "EIGRP (Enhanced Interior Gateway Routing Protocol) hangi routing metriklerini kullanır?",
+                options: ["Sadece bant genişliği ve gecikme", "Bant genişliği, gecikme, yük ve güvenilirlik", "Bant genişliği ve maliyet", "Sadece maliyet"],
+                correct: 1
+            },
+            {
+                question: "OSPF (Open Shortest Path First) hangi algoritmayı kullanır?",
+                options: ["Bellman-Ford algoritması", "Dijkstra’nın kısa yol ilkesi algoritması", "Path Vector algoritması", "Floyd-Warshall algoritması"],
+                correct: 1
+            },
+            {
+                question: "BGP (Border Gateway Protocol) hangi tür yönlendirme protokolü olarak sınıflandırılır?",
+                options: ["İç ağ yönlendirme protokolü (IGP)", "Mesafe vektör yönlendirme protokolü", "Bağlantı durumu yönlendirme protokolü", "Dış ağ yönlendirme protokolü (EGP)"],
+                correct: 3
+            },
+            {
+                question: "Bir routerda birden fazla OSPF area kullanmanın bir avantajı nedir?",
+                options: ["Tüm ağda geniş çaplı LSDB (Link State Database) güncellemelerinin yapılması", "OSPF routing tablolarının boyutunu küçültmek", "OSPF işlemlerini basitleştirmek", "Daha karmaşık topolojilere uyum sağlamak"],
+                correct: 1
+            },
+            {
+                question: "NAT tablosunda yer alan girişlerin süresi dolduğunda ne olur?",
+                options: ["Giriş kalıcı olarak tablodan silinir", "Girişler otomatik olarak yenilenir", "Girişler başka bir cihaz tarafından sorgulanana kadar geçici olarak saklanır", "Girişler belirli bir süre için daha saklanır ve ardından silinir"],
+                correct: 0
+            },
+            {
+                question: "Dinamik NAT kullanıldığında, aşağıdaki durumlardan hangisi gerçekleşmez?",
+                options: ["Aynı public IP adresi, birden fazla özel IP adresiyle aynı anda eşleştirilebilir", "NAT havuzundaki bir IP adresi, bir iç cihaza belirli bir süre için atanır", "Belirli bir public IP adresi, aynı anda yalnızca bir iç ağa atanabilir", "NAT yönlendiricisi tarafından dinamik olarak atanır"],
+                correct: 2
+            },
+            {
+                question: "Dinamik NAT kullanılırken NAT havuzundaki IP adresleri tükendiğinde ne olur?",
+                options: ["Yeni bağlantı talepleri reddedilir", "NAT yönlendiricisi otomatik olarak yeni IP adresleri ekler", "Mevcut bağlantılar kesilir ve yeni bağlantılar önceliklendirilir", "NAT yönlendiricisi mevcut IP adreslerini yeniden kullanmaya başlar"],
+                correct: 0
+            },
+            {
+                question: "DHCP relay agent ne işe yarar?",
+                options: ["DHCP istemcilerinin IP adreslerini yenilemelerini sağlar", "DHCP sunucusu ile istemci arasında DHCP mesajlarını iletir", "DHCP sunucusunun IP adresi havuzunu genişletir", "DHCP istemcileri için statik IP adresleri sağlar"],
+                correct: 1
+            },
+            {
+                question: "Bir DHCP istemcisi, mevcut DHCP sunucusuyla iletişime geçmek için hangi iletim yöntemini kullanır?",
+                options: ["Unicast", "Broadcast", "Multicast", "Anycast"],
+                correct: 1
+            },
+            {
+                question: "Aşağıdakilerden hangisi DHCP sunucusu tarafından istemciye sağlanabilecek bir bilgi değildir?",
+                options: ["IP adresi", "Alt ağ maskesi", "Varsayılan ağ geçidi", "DNS çözümleme süresi"],
+                correct: 3
+            },
+            {
+                question: "Bir LAN ağına bağlanmak için hangi cihaz gerekir?",
+                options: ["Modem", "Router", "Switch", "Repeater"],
+                correct: 2
+            },
+            {
+                question: "Geniş bant VPN’leri ile ilgili olarak, aşağıdakilerden hangisi doğrudur?",
+                options: ["Geniş bant VPN’leri, yalnızca bir ofisin içinde kullanılır", "Geniş bant VPN’leri, veri iletimi için halka açık ağlar kullanır", "Geniş bant VPN’leri, şifreleme olmadan veri iletimi sağlar", "Geniş bant VPN’leri, farklı lokasyonlar arasında güvenli bir bağlantı kurmak için kullanılır"],
+                correct: 3
+            },
+            {
+                question: "Kiralık hatlar, WAN’da hangi amaçla kullanılır?",
+                options: ["Değişken bant genişliği sağlamak için", "Maliyeti azaltmak için", "Yüksek güvenlik gerektiren iletimlerde", "Geniş kapsama alanı sağlamak için"],
+                correct: 2
+            },
+            {
+                question: "Aşağıdakilerden hangisi OSPF routing protokolü için orijinal administrative distance değeridir?",
+                options: ["110", "90", "100", "120"],
+                correct: 0
+            },
+            {
+                question: "Aşağıdakilerden hangisi/hangileri switch üzerinde bir port üzerinden birden fazla VLAN taşımamızı sağlayan protokoldür/protokolleridir?",
+                options: ["VTP", "802.1q", "STP", "802.3af"],
+                correct: 1
+            },
+            {
+                question: "Bir Cisco switch üzerinde bir portu belirli bir VLAN'a atamak için kullanılan doğru komut nedir?",
+                options: ["switchport vlan 10", "switchport access vlan 10", "assign vlan 10", "port vlan 10"],
+                correct: 1
+            },
+            {
+                question: "Bir ağ geçidi (gateway) hangi işlevi yerine getirir?",
+                options: ["Farklı ağlar arasında iletişimi sağlar", "Aynı ağdaki cihazlar arasında iletişimi sağlar", "Veri paketlerini yönlendirir", "Fiziksel bağlantıyı sağlar"],
+                correct: 0
+            },
+            {
+                question: "Bir ağ köprüsü (bridge) hangi işlevi yerine getirir?",
+                options: ["Farklı ağlar arasında iletişimi sağlar", "Aynı ağdaki cihazlar arasında iletişimi sağlar", "Veri paketlerini yönlendirir", "Fiziksel bağlantıyı sağlar"],
+                correct: 1
+            },
+            {
+                question: "Hangisi Auxiliary bağlantısı esnasında kullanılan bileşenlerden değildir?",
+                options: ["Bilgisayar seri portu", "Çevirmeli modem", "Aux portu", "Bağlantı yazılımı"],
+                correct: 1
+            },
+            {
+                question: "Aşağıdakilerden hangisi bir distance-vector routing protokolüdür?",
+                options: ["OSPF", "BGP", "RIP", "IS-IS"],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = -1;
+        let answered = false;
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.onclick = () => selectAnswer(index);
+                optionDiv.innerHTML = `
+                    <span class="option-label">${String.fromCharCode(65 + index)})</span>
+                    <span>${option}</span>
+                `;
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            updateProgressBar();
+            document.getElementById('nextBtn').disabled = true;
+            selectedAnswer = -1;
+            answered = false;
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            
+            selectedAnswer = index;
+            const options = document.querySelectorAll('.option');
+            const question = questions[currentQuestion];
+            
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            
+            setTimeout(() => {
+                answered = true;
+                
+                options.forEach((opt, i) => {
+                    if (i === question.correct) {
+                        opt.classList.add('correct');
+                    } else if (i === selectedAnswer && i !== question.correct) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+                
+                if (selectedAnswer === question.correct) {
+                    score++;
+                }
+                
+                document.getElementById('nextBtn').disabled = false;
+            }, 500);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            const scoreCircle = document.getElementById('scoreCircle');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDetails = document.getElementById('resultDetails');
+            
+            document.getElementById('scorePercentage').textContent = percentage + '%';
+            resultDetails.textContent = `${questions.length} sorudan ${score} tanesini doğru cevapladınız`;
+            
+            if (percentage >= 90) {
+                scoreCircle.className = 'score-circle score-excellent';
+                resultTitle.textContent = 'Mükemmel! 🎉';
+            } else if (percentage >= 70) {
+                scoreCircle.className = 'score-circle score-good';
+                resultTitle.textContent = 'Çok İyi! 👏';
+            } else if (percentage >= 50) {
+                scoreCircle.className = 'score-circle score-average';
+                resultTitle.textContent = 'Fena Değil 👍';
+            } else {
+                scoreCircle.className = 'score-circle score-poor';
+                resultTitle.textContent = 'Geliştirme Gerekli 📚';
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            displayQuestion();
+        }
+
+        displayQuestion();
+    </script>
+</body>
+</html>
