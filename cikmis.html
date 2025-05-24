@@ -11,6 +11,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth; /* Smooth scrolling */
+        }
+
         body {
             font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a1127 0%, #2e1a47 100%); /* Deep purple-dark gradient */
@@ -18,7 +22,7 @@
             padding: 20px;
             color: #e0e7ff;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto; /* Allow scrolling */
         }
 
         /* Network-inspired background animation */
@@ -126,6 +130,8 @@
 
         .quiz-container {
             padding: 40px;
+            overflow-y: auto; /* Allow scrolling within quiz container */
+            max-height: calc(100vh - 200px); /* Adjust based on header and padding */
         }
 
         .question-card {
@@ -188,7 +194,7 @@
             overflow: hidden;
         }
 
-        .option:hover {
+        .option:hover, .option:active {
             border-color: #db2777;
             background: rgba(51, 65, 85, 0.9);
             transform: translateX(-5px);
@@ -227,6 +233,11 @@
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
         }
 
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
         @keyframes correctPulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -246,7 +257,15 @@
             color: #e0e7ff;
         }
 
-        .next-btn {
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+
+        .next-btn, .prev-btn {
             background: linear-gradient(45deg, #7c3aed, #db2777);
             color: white;
             border: none;
@@ -255,20 +274,20 @@
             font-size: 1.2em;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 30px;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(219, 39, 119, 0.4);
             position: relative;
             overflow: hidden;
+            flex: 1;
         }
 
-        .next-btn:hover {
+        .next-btn:hover, .prev-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(219, 39, 119, 0.6);
             background: linear-gradient(45deg, #6d28d9, #ec4899);
         }
 
-        .next-btn::after {
+        .next-btn::after, .prev-btn::after {
             content: '';
             position: absolute;
             top: 0;
@@ -280,11 +299,11 @@
             opacity: 0;
         }
 
-        .next-btn:hover::after {
+        .next-btn:hover::after, .prev-btn:hover::after {
             opacity: 1;
         }
 
-        .next-btn:disabled {
+        .next-btn:disabled, .prev-btn:disabled {
             background: #4b5563;
             cursor: not-allowed;
             transform: none;
@@ -312,6 +331,12 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            animation: rotateIn 1s ease-out;
+        }
+
+        @keyframes rotateIn {
+            from { transform: rotate(-10deg); opacity: 0; }
+            to { transform: rotate(0); opacity: 1; }
         }
 
         .score-circle::before {
@@ -397,27 +422,111 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
             .container {
-                margin: 10px;
+                margin: 5px;
                 border-radius: 15px;
             }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .quiz-container {
+
+            .header {
                 padding: 20px;
             }
-            
-            .question-text {
-                font-size: 1.1em;
+
+            .header h1 {
+                font-size: 1.8em;
             }
-            
+
+            .quiz-container {
+                padding: 20px;
+                max-height: calc(100vh - 150px); /* Adjusted for smaller screens */
+            }
+
+            .question-card {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .question-number {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9em;
+            }
+
+            .question-text {
+                font-size: 1em;
+                margin-bottom: 15px;
+            }
+
+            .option {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .button-container {
+                flex-direction: row;
+                gap: 8px;
+            }
+
+            .next-btn, .prev-btn {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+
             .score-circle {
-                width: 150px;
-                height: 150px;
-                font-size: 2.5em;
+                width: 140px;
+                height: 140px;
+                font-size: 2.2em;
+            }
+
+            .results {
+                padding: 20px;
+            }
+
+            .results h2 {
+                font-size: 1.8em;
+            }
+
+            .results-details {
+                font-size: 1em;
+            }
+
+            .restart-btn {
+                padding: 10px 30px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .quiz-container {
+                padding: 15px;
+                max-height: calc(100vh - 120px);
+            }
+
+            .question-text {
+                font-size: 0.9em;
+            }
+
+            .option {
+                font-size: 0.85em;
+                padding: 8px 12px;
+            }
+
+            .next-btn, .prev-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+
+            .score-circle {
+                width: 120px;
+                height: 120px;
+                font-size: 2em;
             }
         }
     </style>
@@ -437,7 +546,10 @@
                 <div class="question-number" id="questionNumber">1</div>
                 <div class="question-text" id="questionText"></div>
                 <div class="options" id="optionsContainer"></div>
-                <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Sonraki Soru</button>
+                <div class="button-container">
+                    <button class="prev-btn" id="prevBtn" onclick="prevQuestion()" disabled>Önceki Soru</button>
+                    <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Sonraki Soru</button>
+                </div>
             </div>
         </div>
 
@@ -469,7 +581,7 @@
                 correct: 1
             },
             {
-                question: "VLAN'lar arası yönlendirme için kullanılan cihazın hangi özelliği önemlidir?",
+                question: "VLAN'lar arası yönlendirme için kullanılan cihazın ;hangi özelliği önemlidir?",
                 options: ["CPU hızı", "Bellek boyutu", "İşletim sistemi sürümü", "Arayüz sayısı"],
                 correct: 3
             },
@@ -629,19 +741,60 @@
         let score = 0;
         let selectedAnswer = -1;
         let answered = false;
+        let answers = Array(questions.length).fill(null); // Store answers for each question
+        let shuffledOrders = Array(questions.length).fill(null); // Store shuffled options for each question
+
+        // Function to shuffle options while preserving correct answer
+        function shuffleOptions(options, correctIndex) {
+            const indexedOptions = options.map((option, index) => ({ option, index }));
+            for (let i = indexedOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indexedOptions[i], indexedOptions[j]] = [indexedOptions[j], indexedOptions[i]];
+            }
+            const newCorrectIndex = indexedOptions.findIndex(item => item.index === correctIndex);
+            return {
+                shuffledOptions: indexedOptions.map(item => item.option),
+                newCorrectIndex
+            };
+        }
 
         function displayQuestion() {
             const question = questions[currentQuestion];
+            let shuffledOptions, newCorrectIndex;
+
+            // Use stored shuffled order if available, otherwise shuffle
+            if (shuffledOrders[currentQuestion] === null) {
+                const shuffleResult = shuffleOptions(question.options, question.correct);
+                shuffledOptions = shuffleResult.shuffledOptions;
+                newCorrectIndex = shuffleResult.newCorrectIndex;
+                shuffledOrders[currentQuestion] = { shuffledOptions, newCorrectIndex };
+            } else {
+                shuffledOptions = shuffledOrders[currentQuestion].shuffledOptions;
+                newCorrectIndex = shuffledOrders[currentQuestion].newCorrectIndex;
+            }
+
             document.getElementById('questionNumber').textContent = currentQuestion + 1;
             document.getElementById('questionText').textContent = question.question;
             
             const optionsContainer = document.getElementById('optionsContainer');
             optionsContainer.innerHTML = '';
             
-            question.options.forEach((option, index) => {
+            shuffledOptions.forEach((option, index) => {
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'option';
-                optionDiv.onclick = () => selectAnswer(index);
+                if (answers[currentQuestion] !== null) {
+                    optionDiv.classList.add('disabled');
+                    if (index === newCorrectIndex) {
+                        optionDiv.classList.add('correct');
+                    } else if (index === answers[currentQuestion] && index !== newCorrectIndex) {
+                        optionDiv.classList.add('incorrect');
+                    }
+                } else {
+                    optionDiv.onclick = () => selectAnswer(index, newCorrectIndex);
+                }
+                if (index === answers[currentQuestion]) {
+                    optionDiv.classList.add('selected');
+                }
                 optionDiv.innerHTML = `
                     <span class="option-label">${String.fromCharCode(65 + index)})</span>
                     <span>${option}</span>
@@ -650,17 +803,16 @@
             });
             
             updateProgressBar();
-            document.getElementById('nextBtn').disabled = true;
-            selectedAnswer = -1;
-            answered = false;
+            document.getElementById('nextBtn').disabled = answers[currentQuestion] === null;
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
         }
 
-        function selectAnswer(index) {
-            if (answered) return;
+        function selectAnswer(index, correctIndex) {
+            if (answered || answers[currentQuestion] !== null) return;
             
             selectedAnswer = index;
+            answers[currentQuestion] = index;
             const options = document.querySelectorAll('.option');
-            const question = questions[currentQuestion];
             
             options.forEach(opt => opt.classList.remove('selected'));
             options[index].classList.add('selected');
@@ -669,14 +821,15 @@
                 answered = true;
                 
                 options.forEach((opt, i) => {
-                    if (i === question.correct) {
+                    opt.classList.add('disabled');
+                    if (i === correctIndex) {
                         opt.classList.add('correct');
-                    } else if (i === selectedAnswer && i !== question.correct) {
+                    } else if (i === selectedAnswer && i !== correctIndex) {
                         opt.classList.add('incorrect');
                     }
                 });
                 
-                if (selectedAnswer === question.correct) {
+                if (selectedAnswer === correctIndex) {
                     score++;
                 }
                 
@@ -688,9 +841,20 @@
             currentQuestion++;
             
             if (currentQuestion < questions.length) {
+                answered = false;
                 displayQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                answered = answers[currentQuestion] !== null;
+                displayQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
@@ -724,14 +888,19 @@
                 scoreCircle.className = 'score-circle score-poor';
                 resultTitle.textContent = 'Geliştirme Gerekli 📚';
             }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function restartQuiz() {
             currentQuestion = 0;
             score = 0;
+            answers = Array(questions.length).fill(null);
+            shuffledOrders = Array(questions.length).fill(null); // Reset shuffled orders
             document.getElementById('resultsContainer').classList.add('hidden');
             document.getElementById('quizContainer').classList.remove('hidden');
+            answered = false;
             displayQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         displayQuestion();
