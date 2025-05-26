@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İnteraktif Bilgisayar Ağları Sınavı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #071426 0%, #134e4a 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.2)"/></svg>') repeat;
+            opacity: 0.1;
+            animation: networkFlow 20s linear infinite;
+        }
+
+        @keyframes networkFlow {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(45deg, #15803d, #06b6d4);
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.2;
+            animation: pulse 5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.4; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+            position: relative;
+            font-weight: 700;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 5px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(45deg, #34d399, #22d3ee);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            width: 0%;
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .quiz-container {
+            padding: 40px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+
+        .question-card {
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            border-color: #34d399;
+        }
+
+        .question-number {
+            background: linear-gradient(45deg, #15803d, #06b6d4);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #e2e8f0;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(51, 65, 85, 0.7);
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover, .option:active {
+            border-color: #34d399;
+            background: rgba(51, 65, 85, 0.9);
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(52, 211, 153, 0.3);
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><line x1="0" y1="10" x2="20" y2="10" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><line x1="10" y1="0" x2="10" y2="20" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>') repeat;
+            opacity: 0.2;
+        }
+
+        .option.selected {
+            border-color: #34d399;
+            background: rgba(71, 85, 105, 0.9);
+        }
+
+        .option.correct {
+            background: linear-gradient(45deg, #22c55e, #16a34a);
+            color: white;
+            border-color: #22c55e;
+            animation: correctPulse 0.6s ease;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+        }
+
+        .option.incorrect {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            color: white;
+            border-color: #ef4444;
+            animation: incorrectShake 0.6s ease;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 30px;
+            color: #e2e8f0;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+
+        .next-btn, .prev-btn {
+            background: linear-gradient(45deg, #15803d, #06b6d4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(21, 128, 61, 0.4);
+            position: relative;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .next-btn:hover, .prev-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(21, 128, 61, 0.6);
+            background: linear-gradient(45deg, #166534, #0891b2);
+        }
+
+        .next-btn::after, .prev-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s linear infinite;
+            opacity: 0;
+        }
+
+        .next-btn:hover::after, .prev-btn:hover::after {
+            opacity: 1;
+        }
+
+        .next-btn:disabled, .prev-btn:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .results {
+            text-align: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            animation: rotateIn 1s ease-out;
+        }
+
+        @keyframes rotateIn {
+            from { transform: rotate(-10deg); opacity: 0; }
+            to { transform: rotate(0); opacity: 1; }
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.3;
+            animation: pulse 5s ease-in-out infinite;
+        }
+
+        .score-excellent {
+            background: linear-gradient(45deg, #22c55e, #16a34a);
+        }
+
+        .score-good {
+            background: linear-gradient(45deg, #06b6d4, #0891b2);
+        }
+
+        .score-average {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+        }
+
+        .score-poor {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+        }
+
+        .results h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #e2e8f0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-details {
+            font-size: 1.3em;
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #15803d, #06b6d4);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(21, 128, 61, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(21, 128, 61, 0.6);
+            background: linear-gradient(45deg, #166534, #0891b2);
+        }
+
+        .restart-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s linear infinite;
+            opacity: 0;
+        }
+
+        .restart-btn:hover::after {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .quiz-container {
+                padding: 20px;
+                max-height: calc(100vh - 150px);
+            }
+
+            .question-card {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .question-number {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9em;
+            }
+
+            .question-text {
+                font-size: 1.1em;
+                margin-bottom: 15px;
+            }
+
+            .option {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .button-container {
+                flex-direction: row;
+                gap: 8px;
+            }
+
+            .next-btn, .prev-btn {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+
+            .score-circle {
+                width: 140px;
+                height: 140px;
+                font-size: 2.2em;
+            }
+
+            .results {
+                padding: 20px;
+            }
+
+            .results h2 {
+                font-size: 1.8em;
+            }
+
+            .results-details {
+                font-size: 1em;
+            }
+
+            .restart-btn {
+                padding: 10px 30px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .quiz-container {
+                padding: 15px;
+                max-height: calc(100vh - 120px);
+            }
+
+            .question-text {
+                font-size: 0.9em;
+            }
+
+            .option {
+                font-size: 0.85em;
+                padding: 8px 12px;
+            }
+
+            .next-btn, .prev-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+
+            .score-circle {
+                width: 120px;
+                height: 120px;
+                font-size: 2em;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bilgisayar Ağları Sınavı 🌐</h1>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer" class="quiz-container">
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="button-container">
+                    <button class="prev-btn" id="prevBtn" onclick="prevQuestion()" disabled>Önceki Soru</button>
+                    <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Sonraki Soru</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsContainer" class="results hidden">
+            <div class="score-circle" id="scoreCircle">
+                <span id="scorePercentage"></span>
+            </div>
+            <h2 id="resultTitle"></h2>
+            <div class="results-details" id="resultDetails"></div>
+            <button class="restart-btn" onclick="restartQuiz()">Sınavı Yeniden Başlat</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "NAT’ın temel amacı nedir?",
+                options: [
+                    "IP yönlendirmesini hızlandırmak",
+                    "İç ağları internete bağlamak için IP adresi çevirisi yapmak",
+                    "DNS çözümlemesi yapmak",
+                    "Yedekleme sağlamak"
+                ],
+                correct: 1
+            },
+            {
+                question: "Aşağıdakilerden hangisi özel (private) IP adreslerinden biridir?",
+                options: [
+                    "8.8.8.8",
+                    "192.168.1.1",
+                    "172.0.0.1",
+                    "255.255.255.255"
+                ],
+                correct: 1
+            },
+            {
+                question: "Aşağıdakilerden hangisi genel (public) IP adresidir?",
+                options: [
+                    "10.0.0.1",
+                    "172.20.10.1",
+                    "192.168.0.5",
+                    "8.8.8.8"
+                ],
+                correct: 3
+            },
+            {
+                question: "NAT havuzu nedir?",
+                options: [
+                    "IP adreslerini şifreleme yöntemi",
+                    "Yedekleme sistemi",
+                    "Genel IP adreslerinin toplandığı alan",
+                    "Cihaz güncelleme deposu"
+                ],
+                correct: 2
+            },
+            {
+                question: "Aşağıdakilerden hangisi NAT’ın temel amacı değildir?",
+                options: [
+                    "İç IP adreslerini gizlemek",
+                    "Ağ güvenliğini artırmak",
+                    "Genel IP adreslerini çoğaltmak",
+                    "Özel IP’lerin internete çıkmasını sağlamak",
+                    "IP adresi tasarrufu yapmak"
+                ],
+                correct: 2
+            },
+            {
+                question: "NAT hangi cihazda uygulanır?",
+                options: [
+                    "Switch",
+                    "Modem",
+                    "Router",
+                    "Access Point",
+                    "Hub"
+                ],
+                correct: 2
+            },
+            {
+                question: "NAT hangi tür IP adreslerini genel IP adresine çevirir?",
+                options: [
+                    "DNS adreslerini",
+                    "MAC adreslerini",
+                    "Özel (private) IP adreslerini",
+                    "Alt ağ maskelerini",
+                    "Yayın (broadcast) adreslerini"
+                ],
+                correct: 2
+            },
+            {
+                question: "Aşağıdakilerden hangisi NAT kullanımının bir avantajıdır?",
+                options: [
+                    "IP çakışmalarını artırır",
+                    "İnternete doğrudan erişimi engeller",
+                    "Yerel ağdaki cihazları gizler",
+                    "MAC adreslerini değiştirir",
+                    "IP yönlendirme algoritmasını değiştirir"
+                ],
+                correct: 2
+            },
+            {
+                question: "Stub ağı ne demektir?",
+                options: [
+                    "Aynı anda birden çok yönlendiriciye bağlı ağ",
+                    "Sadece yerel ağda çalışan yönlendirici",
+                    "Sadece bir giriş ve bir çıkışı olan küçük ağ",
+                    "NAT olmayan ağ",
+                    "DHCP istemcisi olmayan ağ"
+                ],
+                correct: 2
+            },
+            {
+                question: "NAT yönlendiricisi hangi durumda iç IP adresini çevirir?",
+                options: [
+                    "Cihaz kapandığında",
+                    "Cihaz kendi ağında ping attığında",
+                    "Cihaz dış bir ağa veri göndermek istediğinde",
+                    "Cihaz IP adresini değiştirirse",
+                    "DNS çözümlemesi yapılırsa"
+                ],
+                correct: 2
+            },
+            {
+                question: "İç yerel adres nedir?",
+                options: [
+                    "İnternette görünen IP",
+                    "Cihazın yönlendiricideki adresi",
+                    "Yerel ağdaki cihazın yerel IP’si",
+                    "NAT havuzundaki adres",
+                    "MAC adresi"
+                ],
+                correct: 2
+            },
+            {
+                question: "NAT sonrası internete çıkarken kullanılan adrese ne denir?",
+                options: [
+                    "İç yerel adres",
+                    "İç genel adres",
+                    "Dış yerel adres",
+                    "Yönlendirici adresi",
+                    "IP yönlendirme adresi"
+                ],
+                correct: 1
+            },
+            {
+                question: "Dış genel adres neyi ifade eder?",
+                options: [
+                    "İç cihazın adresi",
+                    "NAT yönlendiricisinin adresi",
+                    "Dış cihazın internet üzerindeki adresi",
+                    "Yerel ağ maskesi",
+                    "Port numarası"
+                ],
+                correct: 2
+            },
+            {
+                question: "Statik NAT ne zaman kullanılır?",
+                options: [
+                    "Genel IP adresleri sınırlıysa",
+                    "Web sunucusu gibi cihazlara sabit erişim gerekiyorsa",
+                    "DHCP servisi devredeyse",
+                    "IP çakışması varsa",
+                    "Ağda sadece 1 cihaz varsa"
+                ],
+                correct: 1
+            },
+            {
+                question: "Statik NAT’ın gereksinimi nedir?",
+                options: [
+                    "Tek public IP yeterlidir",
+                    "Dinamik adresleme yapılması",
+                    "Her iç cihaz için ayrı bir genel IP adresi",
+                    "ICMP protokolü",
+                    "NAT havuzu olmaması"
+                ],
+                correct: 2
+            },
+            {
+                question: "Dinamik NAT nasıl çalışır?",
+                options: [
+                    "Cihazlara sabit IP verir",
+                    "DHCP gibi IP üretir",
+                    "Her bağlantı için havuzdan geçici IP verir",
+                    "IP adresini şifreler",
+                    "Sadece iç ağda kullanılır"
+                ],
+                correct: 2
+            },
+            {
+                question: "Dinamik NAT’ın dezavantajı nedir?",
+                options: [
+                    "Çok IP gerekir",
+                    "Eğer havuz doluysa yeni cihaz internete çıkamaz",
+                    "Sadece bir cihaza uygulanabilir",
+                    "IP çakışması yaşanır",
+                    "ICMP desteklemez"
+                ],
+                correct: 1
+            },
+            {
+                question: "PAT neden kullanılır?",
+                options: [
+                    "IP’leri şifrelemek için",
+                    "Her cihaza sabit IP vermek için",
+                    "Çok sayıda özel IP’yi az sayıda genel IP ile internete çıkarmak için",
+                    "MAC adresi gizlemek için",
+                    "DNS çözümlemesi için"
+                ],
+                correct: 2
+            },
+            {
+                question: "PAT bağlantıları nasıl ayırt eder?",
+                options: [
+                    "MAC adresi ile",
+                    "IP adresinin son oktetiyle",
+                    "Port numarası ile",
+                    "Zaman damgası ile",
+                    "TCP dizisi ile"
+                ],
+                correct: 2
+            },
+            {
+                question: "Aşağıdakilerden hangisi PAT ile ilgili doğru bir ifadedir?",
+                options: [
+                    "Her iç IP için sabit genel IP gerekir",
+                    "NAT havuzundan IP çekilir",
+                    "IP adresi ve port numarası kullanılarak bağlantılar ayrılır",
+                    "Yalnızca sunucularda kullanılır",
+                    "Aynı anda sadece 1 cihaz internete çıkabilir"
+                ],
+                correct: 2
+            },
+            {
+                question: "Aşağıdakilerden hangisi Statik NAT’ın Dinamik NAT’tan farkıdır?",
+                options: [
+                    "Sadece iç ağda çalışır",
+                    "Genel IP sabittir",
+                    "Port numarası değişir",
+                    "Otomatik adres ataması yapılır",
+                    "NAT yönlendiricisine gerek yoktur"
+                ],
+                correct: 1
+            },
+            {
+                question: "NAT’ın avantajlarından biri aşağıdakilerden hangisidir?",
+                options: [
+                    "TCP oturumları bozması",
+                    "Her cihaza public IP vermesi",
+                    "Cihazların dışarıdan erişimini kolaylaştırması",
+                    "IP adres tasarrufu",
+                    "MAC adreslerini gizlemesi"
+                ],
+                correct: 3
+            },
+            {
+                question: "NAT’ın dezavantajı nedir?",
+                options: [
+                    "İç ağ güvenliği sağlar",
+                    "IP izlenebilirliği artırır",
+                    "Tünelleme protokolleriyle uyumsuzluk yaratabilir",
+                    "Performansı artırır",
+                    "Her zaman sabit IP sağlar"
+                ],
+                correct: 2
+            },
+            {
+                question: "Aşağıdaki komutlardan hangisi Statik NAT eşlemesini yapar?",
+                options: [
+                    "ip route",
+                    "ip dhcp pool",
+                    "ip nat inside source static ...",
+                    "ip access-list",
+                    "hostname"
+                ],
+                correct: 2
+            },
+            {
+                question: "Port yönlendirme neden kullanılır?",
+                options: [
+                    "NAT yönlendiricisinin IP’sini değiştirmek için",
+                    "İç ağdan dışa çıkan trafiği filtrelemek için",
+                    "Dışarıdan gelen trafiği iç cihazlara yönlendirmek için",
+                    "DNS çözümleri için",
+                    "VPN bağlantılarını engellemek için"
+                ],
+                correct: 2
+            },
+            {
+                question: "NAT hangi durumda port yönlendirmeye ihtiyaç duyar?",
+                options: [
+                    "İç cihaz bir web sitesi açmak isterse",
+                    "Dışarıdan bir istemci iç cihaza bağlanmak isterse",
+                    "Tüm trafik NAT ile yönlendirilir",
+                    "DHCP IP vermezse",
+                    "ACL ile yapılandırılmışsa"
+                ],
+                correct: 1
+            },
+            {
+                question: "VLAN ne işe yarar?",
+                options: [
+                    "IP adresi değiştirir",
+                    "Switch’i mantıksal olarak bölerek alt ağlar oluşturur",
+                    "DNS çözümlemesi yapar",
+                    "Yönlendiriciye IP atar",
+                    "MAC adresi kontrolü yapar"
+                ],
+                correct: 1
+            },
+            {
+                question: "VLAN hangi katmanda çalışır?",
+                options: [
+                    "Katman 1",
+                    "Katman 2",
+                    "Katman 3",
+                    "Katman 4",
+                    "Katman 7"
+                ],
+                correct: 1
+            },
+            {
+                question: "Switch bir çerçeveyi hangi portlara iletir?",
+                options: [
+                    "Tüm portlara",
+                    "Farklı VLAN’lardaki tüm portlara",
+                    "Aynı VLAN’daki ilgili portlara",
+                    "Yönlendirici portuna",
+                    "MAC adresine göre rastgele"
+                ],
+                correct: 2
+            },
+            {
+                question: "Broadcast adresli bir çerçeve hangi portlara iletilir?",
+                options: [
+                    "Tüm ağ cihazlarına",
+                    "Sadece aynı VLAN’daki portlara",
+                    "Sadece yönlendiriciye",
+                    "Switch’in tüm portlarına",
+                    "MAC listesine kaydedilmemiş portlara"
+                ],
+                correct: 1
+            },
+            {
+                question: "Aşağıdakilerden hangisi VLAN kullanımının bir avantajıdır?",
+                options: [
+                    "Tüm portlar aynı yayına maruz kalır",
+                    "Yönlendirici ihtiyacını artırır",
+                    "Broadcast alanlarını sınırlar",
+                    "Her cihaz için ayrı switch gerekir",
+                    "Güvenlik zayıflar"
+                ],
+                correct: 2
+            },
+            {
+                question: "VLAN kullanımı neyi kolaylaştırır?",
+                options: [
+                    "Fiziksel kablolama",
+                    "Kişisel veri paylaşımı",
+                    "Ağ yönetimini ve projeleri ayırmayı",
+                    "MAC adresi ezberlemeyi",
+                    "IP çakışmalarını artırmayı"
+                ],
+                correct: 2
+            },
+            {
+                question: "Hangi VLAN, switch yönetimi için kullanılır?",
+                options: [
+                    "Voice",
+                    "Default",
+                    "Management",
+                    "Trunk",
+                    "Native"
+                ],
+                correct: 2
+            },
+            {
+                question: "Etiketsiz trafik hangi VLAN’a aittir?",
+                options: [
+                    "Management",
+                    "Voice",
+                    "Native",
+                    "Default",
+                    "Data"
+                ],
+                correct: 2
+            },
+            {
+                question: "Kullanıcı verisi taşıyan VLAN hangisidir?",
+                options: [
+                    "Voice",
+                    "Native",
+                    "Trunk",
+                    "Data",
+                    "Default"
+                ],
+                correct: 3
+            },
+            {
+                question: "Access port ne işe yarar?",
+                options: [
+                    "Tüm VLAN’ları taşır",
+                    "Tek VLAN’a cihaz bağlar",
+                    "Switch’e IP atar",
+                    "Broadcast gönderir",
+                    "Tag’li çerçeve üretir"
+                ],
+                correct: 1
+            },
+            {
+                question: "Trunk port’un özelliği nedir?",
+                options: [
+                    "DHCP’yi dağıtır",
+                    "Access portları tanımlar",
+                    "Birden fazla VLAN’ı taşıyabilir",
+                    "Sadece VLAN 1’e çalışır",
+                    "MAC tablosu oluşturur"
+                ],
+                correct: 2
+            },
+            {
+                question: "Dynamic mode ne yapar?",
+                options: [
+                    "Portu kapatır",
+                    "Yalnızca VLAN 1’i taşır",
+                    "DTP ile access/trunk kararı verir",
+                    "Port yönlendirme yapar",
+                    "Yönetim VLAN’ını belirler"
+                ],
+                correct: 2
+            },
+            {
+                question: "IEEE 802.1Q protokolü ne işe yarar?",
+                options: [
+                    "IP adresi atar",
+                    "Ethernet çerçevesine VLAN etiketi ekler",
+                    "DHCP’yi başlatır",
+                    "MAC tablosunu sıfırlar",
+                    "Broadcast yayını yapar"
+                ],
+                correct: 1
+            },
+            {
+                question: "VLAN ID kaç bit’liktir?",
+                options: [
+                    "8 bit",
+                    "10 bit",
+                    "12 bit",
+                    "16 bit",
+                    "24 bit"
+                ],
+                correct: 2
+            },
+            {
+                question: "Bir VLAN’ı oluşturmak için hangi komut kullanılır?",
+                options: [
+                    "add vlan",
+                    "vlan [numara]",
+                    "ip vlan",
+                    "vlan enable",
+                    "set vlan"
+                ],
+                correct: 1
+            },
+            {
+                question: "Bir portu VLAN’a atamak için hangi komut kullanılır?",
+                options: [
+                    "interface vlan",
+                    "switchport access vlan",
+                    "vlan-port bind",
+                    "ip address",
+                    "set vlan group"
+                ],
+                correct: 1
+            },
+            {
+                question: "VLAN’lar arası haberleşme için ne gereklidir?",
+                options: [
+                    "Switch",
+                    "Router veya L3 Switch",
+                    "Modem",
+                    "Bridge",
+                    "Repeater"
+                ],
+                correct: 1
+            },
+            {
+                question: "L3 switch kullanarak VLAN yönlendirmesi yapılmak istenirse ne gereklidir?",
+                options: [
+                    "Her VLAN için fiziksel port",
+                    "Her VLAN için sanal arayüz (SVI) ve ip routing",
+                    "Trunk port gerekmez",
+                    "Switch’e DNS atanır",
+                    "VLAN etiketleme kaldırılır"
+                ],
+                correct: 1
+            },
+            {
+                question: "Router-on-a-Stick yönteminde hangi yapılandırma kullanılır?",
+                options: [
+                    "Her VLAN için fiziksel port gerekir",
+                    "Trunk port kullanılmaz",
+                    "Access port’a IP atanır",
+                    "Her VLAN için alt arayüz (sub-interface) kullanılır"
+                ],
+                correct: 3
+            },
+            {
+                question: "Layer 3 switch kullanarak VLAN’lar arası yönlendirme yapılmak istenirse hangi komut gereklidir?",
+                options: [
+                    "interface vlan",
+                    "switchport mode trunk",
+                    "show ip route",
+                    "ip routing"
+                ],
+                correct: 3
+            },
+            {
+                question: "Router-on-a-Stick yönteminde kullanılan VLAN etiketleme protokolü aşağıdakilerden hangisidir?",
+                options: [
+                    "VTP",
+                    "802.1Q",
+                    "STP",
+                    "NAT"
+                ],
+                correct: 1
+            },
+            {
+                question: "Aşağıdakilerden hangisi çok portlu yönlendirici yöntemiyle ilgili bir özelliktir?",
+                options: [
+                    "Her VLAN için alt arayüz kullanılır",
+                    "Her VLAN için ayrı fiziksel port gerekir",
+                    "Yönlendirme Layer 3 switch ile yapılır",
+                    "Tek port kullanılır, tag yapılmaz"
+                ],
+                correct: 1
+            },
+            {
+                question: "Switch üzerinde VLAN yönlendirmesi yapılmadan önce aşağıdakilerden hangisi gereklidir?",
+                options: [
+                    "IP adresi tüm cihazlara atanmalıdır",
+                    "Her VLAN’ın farklı IP subnet’i olmalıdır",
+                    "Tüm portlar trunk yapılmalıdır",
+                    "Default VLAN kaldırılmalıdır"
+                ],
+                correct: 1
+            },
+            {
+                question: "DHCP’nin temel amacı aşağıdakilerden hangisidir?",
+                options: [
+                    "IP adreslerini statik olarak belirlemek",
+                    "IP adreslerini otomatik olarak istemcilere atamak",
+                    "DNS kayıtlarını tutmak",
+                    "MAC adreslerini şifrelemek"
+                ],
+                correct: 1
+            },
+            {
+                question: "DHCP protokolü hangi katmanda çalışır ve hangi portu kullanır?",
+                options: [
+                    "Uygulama katmanı – TCP 80",
+                    "İnternet katmanı – UDP 53",
+                    "Aktarım katmanı – UDP 67-68",
+                    "Fiziksel katman – ICMP"
+                ],
+                correct: 2
+            },
+            {
+                question: "Aşağıdakilerden hangisi DHCP sunucusunun istemciye verebileceği bilgidir?",
+                options: [
+                    "IP adresi",
+                    "Ağ geçidi",
+                    "DNS sunucusu",
+                    "Hepsi"
+                ],
+                correct: 3
+            },
+            {
+                question: "DHCP sunucusu VLAN dışında ise ve istemciler farklı VLAN’daysa aşağıdakilerden hangisi yapılmalıdır?",
+                options: [
+                    "DHCP sunucusu aynı VLAN’a taşınır",
+                    "DHCP kullanılamaz",
+                    "Router arayüzüne ip helper-address komutu uygulanır",
+                    "DNS üzerinden yönlendirme yapılır"
+                ],
+                correct: 2
+            },
+            {
+                question: "DHCP sunucusu bulunamazsa istemciler hangi IP aralığını kullanır?",
+                options: [
+                    "10.0.0.0/8",
+                    "169.254.0.0/16",
+                    "172.16.0.0/12",
+                    "192.168.0.0/16"
+                ],
+                correct: 1
+            },
+            {
+                question: "Aşağıdakilerden hangisi DHCP sisteminde istemci rolündedir?",
+                options: [
+                    "Yönlendirici",
+                    "IP almak isteyen bilgisayar",
+                    "DNS sunucusu",
+                    "MAC filtreleyici"
+                ],
+                correct: 1
+            },
+            {
+                question: "DHCP relay agent’in görevi nedir?",
+                options: [
+                    "IP adresi üretmek",
+                    "DHCP sunucusu olmak",
+                    "DHCP isteklerini başka ağa iletmek",
+                    "DNS bilgisi sağlamak"
+                ],
+                correct: 2
+            },
+            {
+                question: "DHCP sunucusu aşağıdakilerden hangisini istemciye sağlamaz?",
+                options: [
+                    "IP adresi",
+                    "DNS sunucusu",
+                    "Alt ağ maskesi",
+                    "Web tarayıcı ayarları"
+                ],
+                correct: 3
+            },
+            {
+                question: "DHCP sunucusunun istemciye verdiği ağ geçidi adresi hangi amaçla kullanılır?",
+                options: [
+                    "Web sitelerini filtrelemek için",
+                    "DNS sunucusuna ulaşmak için",
+                    "İnternete çıkış yapabilmek için",
+                    "MAC adresleri atamak için"
+                ],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = null;
+        let answered = false;
+        let answers = Array(questions.length).fill(null);
+        let shuffledOrders = Array(questions.length).fill(null);
+
+        function shuffleOptions(options, correctIndex) {
+            const indexedOptions = options.map((option, index) => ({ option, index }));
+            for (let i = indexedOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indexedOptions[i], indexedOptions[j]] = [indexedOptions[j], indexedOptions[i]];
+            }
+            const newCorrectIndex = indexedOptions.findIndex(item => item.index === correctIndex);
+            return {
+                shuffledOptions: indexedOptions.map(item => item.option),
+                newCorrectIndex
+            };
+        }
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            let shuffledOptions, newCorrectIndex;
+
+            if (shuffledOrders[currentQuestion] === null) {
+                const shuffleResult = shuffleOptions(question.options, question.correct);
+                shuffledOptions = shuffleResult.shuffledOptions;
+                newCorrectIndex = shuffleResult.newCorrectIndex;
+                shuffledOrders[currentQuestion] = { shuffledOptions, newCorrectIndex };
+            } else {
+                shuffledOptions = shuffledOrders[currentQuestion].shuffledOptions;
+                newCorrectIndex = shuffledOrders[currentQuestion].newCorrectIndex;
+            }
+
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            shuffledOptions.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                if (answers[currentQuestion] !== null) {
+                    optionDiv.classList.add('disabled');
+                    if (index === newCorrectIndex) {
+                        optionDiv.classList.add('correct');
+                    } else if (index === answers[currentQuestion] && index !== newCorrectIndex) {
+                        optionDiv.classList.add('incorrect');
+                    }
+                } else {
+                    optionDiv.onclick = () => selectAnswer(index, newCorrectIndex);
+                }
+                if (index === answers[currentQuestion]) {
+                    optionDiv.classList.add('selected');
+                }
+                optionDiv.innerHTML = `
+                    <span class="option-label">${String.fromCharCode(65 + index)}</span>
+                    <span>${option}</span>
+                `;
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            updateProgressBar();
+            document.getElementById('nextBtn').disabled = answers[currentQuestion] === null;
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+        }
+
+        function selectAnswer(index, correctIndex) {
+            if (answered || answers[currentQuestion] !== null) return;
+            
+            selectedAnswer = index;
+            answers[currentQuestion] = index;
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            
+            setTimeout(() => {
+                answered = true;
+                
+                options.forEach((opt, i) => {
+                    opt.classList.add('disabled');
+                    if (i === correctIndex) {
+                        opt.classList.add('correct');
+                    } else if (i === selectedAnswer && i !== correctIndex) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+                
+                if (selectedAnswer === correctIndex) {
+                    score++;
+                }
+                
+                document.getElementById('nextBtn').disabled = false;
+            }, 600);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                answered = false;
+                displayQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                answered = answers[currentQuestion] !== null;
+                displayQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function updateProgressBar() {
+            const progress = Math.round(((currentQuestion + 1) / questions.length) * 100);
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            const scoreCircle = document.getElementById('scoreCircle');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDetails = document.getElementById('resultDetails');
+            
+            document.getElementById('scorePercentage').textContent = percentage + '%';
+            resultDetails.textContent = `${questions.length} sorudan ${score} tanesini doğru cevapladınız`;
+            
+            if (percentage >= 90) {
+                scoreCircle.className = 'score-circle score-excellent';
+                resultTitle.textContent = 'Mükemmel! 🎉';
+            } else if (percentage >= 70) {
+                scoreCircle.className = 'score-circle score-good';
+                resultTitle.textContent = 'Çok İyi!';
+            } else if (percentage >= 40) {
+                scoreCircle.className = 'score-circle score-average';
+                resultTitle.textContent = 'Fena Değil!';
+            } else {
+                scoreCircle.className = 'score-circle score-poor';
+                resultTitle.textContent = 'Geliştirme Gerekli!';
+            }
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answers = Array(questions.length).fill(null);
+            shuffledOrders = Array(questions.length).fill(null);
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            answered = false;
+            displayQuestion();
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        displayQuestion();
+    </script>
+</body>
+</html>
