@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İnteraktif Bilgi Sınavı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth; /* Smooth scrolling */
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a192f 0%, #1a3c34 100%); /* Blue-green gradient */
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0f7fa;
+            position: relative;
+            overflow-y: auto; /* Allow scrolling */
+        }
+
+        /* Network-inspired background animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="2" fill="rgba(34,211,238,0.3)"/></svg>') repeat;
+            opacity: 0.2;
+            animation: networkFlow 12s linear infinite;
+        }
+
+        @keyframes networkFlow {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(17, 24, 39, 0.95); /* Deep dark semi-transparent */
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(34, 211, 238, 0.2);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: linear-gradient(45deg, #0284c7, #16a34a); /* Blue to green */
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.25;
+            animation: pulse 3.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.25; }
+            50% { opacity: 0.5; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5), 0 0 5px rgba(34, 211, 238, 0.5);
+            font-weight: 700;
+            position: relative;
+           
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 5px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(45deg, #0284c7, #22d3ee); /* Blue to cyan */
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            width: 0%;
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 1.2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .quiz-container {
+            padding: 40px;
+            overflow-y: auto; /* Allow scrolling within quiz container */
+            max-height: calc(100vh - 200px); /* Adjust based on header and padding */
+        }
+
+        .question-card {
+            background: rgba(31, 41, 55, 0.9); /* Dark card with subtle transparency */
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            border-color: #22d3ee;
+        }
+
+        .question-number {
+            background: linear-gradient(45deg, #0284c7, #16a34a);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #e0f7fa;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid rgba(34, 211, 238, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(51, 65, 85, 0.7); /* Dark option background */
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover, .option:active {
+            border-color: #22d3ee;
+            background: rgba(51, 65, 85, 0.9);
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(34, 211, 238, 0.4);
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><line x1="0" y1="10" x2="20" y2="10" stroke="rgba(34,211,238,0.3)" stroke-width="1"/><line x1="10" y1="0" x2="10" y2="20" stroke="rgba(34,211,238,0.3)" stroke-width="1"/></svg>') repeat;
+            opacity: 0.25;
+        }
+
+        .option.selected {
+            border-color: #22d3ee;
+            background: rgba(71, 85, 105, 0.9);
+        }
+
+        .option.correct {
+            background: linear-gradient(45deg, #22c55e, #16a34a); /* Green for correct */
+            color: white;
+            border-color: #22c55e;
+            animation: correctPulse 0.6s ease;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+        }
+
+        .option.incorrect {
+            background: linear-gradient(45deg, #ef4444, #dc2626); /* Red for incorrect */
+            color: white;
+            border-color: #ef4444;
+            animation: incorrectShake 0.6s ease;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 30px;
+            color: #e0f7fa;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+
+        .next-btn, .prev-btn {
+            background: linear-gradient(45deg, #0284c7, #16a34a);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(34, 211, 238, 0.4);
+            position: relative;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .next-btn:hover, .prev-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 211, 238, 0.6);
+            background: linear-gradient(45deg, #0369a1, #15803d);
+        }
+
+        .next-btn::after, .prev-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.4), transparent);
+            animation: shimmer 1.2s linear infinite;
+            opacity: 0;
+        }
+
+        .next-btn:hover::after, .prev-btn:hover::after {
+            opacity: 1;
+        }
+
+        .next-btn:disabled, .prev-btn:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .results {
+            text-align: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            animation: rotateIn 1s ease-out;
+        }
+
+        @keyframes rotateIn {
+            from { transform: rotate(-10deg); opacity: 0; }
+            to { transform: rotate(0); opacity: 1; }
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.3;
+            animation: pulse 3.5s ease-in-out infinite;
+        }
+
+        .score-excellent {
+            background: linear-gradient(45deg, #22c55e, #16a34a);
+        }
+
+        .score-good {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+        }
+
+        .score-average {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+        }
+
+        .score-poor {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+        }
+
+        .results h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #e0f7fa;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-details {
+            font-size: 1.3em;
+            color: #bae6fd;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #0284c7, #16a34a);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(34, 211, 238, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 211, 238, 0.6);
+            background: linear-gradient(45deg, #0369a1, #15803d);
+        }
+
+        .restart-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.4), transparent);
+            animation: shimmer 1.2s linear infinite;
+            opacity: 0;
+        }
+
+        .restart-btn:hover::after {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                margin: 5px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .quiz-container {
+                padding: 20px;
+                max-height: calc(100vh - 150px); /* Adjusted for smaller screens */
+            }
+
+            .question-card {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .question-number {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9em;
+            }
+
+            .question-text {
+                font-size: 1em;
+                margin-bottom: 15px;
+            }
+
+            .option {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .button-container {
+                flex-direction: row;
+                gap: 8px;
+            }
+
+            .next-btn, .prev-btn {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+
+            .score-circle {
+                width: 140px;
+                height: 140px;
+                font-size: 2.2em;
+            }
+
+            .results {
+                padding: 20px;
+            }
+
+            .results h2 {
+                font-size: 1.8em;
+            }
+
+            .results-details {
+                font-size: 1em;
+            }
+
+            .restart-btn {
+                padding: 10px 30px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .quiz-container {
+                padding: 15px;
+                max-height: calc(100vh - 120px);
+            }
+
+            .question-text {
+                font-size: 0.9em;
+            }
+
+            .option {
+                font-size: 0.85em;
+                padding: 8px 12px;
+            }
+
+            .next-btn, .prev-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+
+            .score-circle {
+                width: 120px;
+                height: 120px;
+                font-size: 2em;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bilgi Sınavı 🌐</h1>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer" class="quiz-container">
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="button-container">
+                    <button class="prev-btn" id="prevBtn" onclick="prevQuestion()" disabled>Önceki Soru</button>
+                    <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Sonraki Soru</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsContainer" class="results hidden">
+            <div class="score-circle" id="scoreCircle">
+                <span id="scorePercentage"></span>
+            </div>
+            <h2 id="resultTitle"></h2>
+            <div class="results-details" id="resultDetails"></div>
+            <button class="restart-btn" onclick="restartQuiz()">Sınavı Yeniden Başlat</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Fourteen bees were involved in this particular experiment and each of ............ completed numerous training exercises",
+                options: ["them", "it", "they", "their", "these"],
+                correct: 4
+            },
+            {
+                question: "The earliest computers were programmed directly at the ........... level.",
+                options: ["solutions", "content", "states", "machine", "convert"],
+                correct: 3
+            },
+            {
+                question: "Logicians typically scrutinize these statements for their solid rules of logical .............",
+                options: ["earliest", "libraries", "reasoning", "attributes", "configuration"],
+                correct: 2
+            },
+            {
+                question: "Bees have been around for a long time and ............ survival probably depends on the ability to come up with novel solutions.",
+                options: ["it", "them", "their", "these", "they"],
+                correct: 2
+            },
+            {
+                question: "Cutting-edge technologies like domain-specific hardware are bound to lead the way.",
+                options: ["Definition of key concepts", "Different views on the subject", "Limitations of current work", "The value of the task", "Previous work on the subject"],
+                correct: 3
+            },
+            {
+                question: "............. languages used symbols to represent the various machine instructions",
+                options: ["Transported", "Attached", "Approach", "Operations", "Assembly"],
+                correct: 4
+            },
+            {
+                question: "Documentation provides details about the product operation and makes suggestions on its ............",
+                options: ["continuous revisions", "proper use", "error detection", "maintained reduction", "ensure interaction"],
+                correct: 1
+            },
+            {
+                question: "This extended version of the software is amenable to further modifications.",
+                options: ["The extended version creates added challenges.", "Modularity introduces new elements to the development of tasks.", "The new version can be further modified.", "For some software products, marketing promotion is appropriate.", "The code can be checked for independence and functionality."],
+                correct: 2
+            },
+            {
+                question: "A register is a stand-alone storage location ............ data temporarily.",
+                options: ["for the purpose", "based on", "in which", "using", "that holds"],
+                correct: 4
+            },
+            {
+                question: "Height is a tree ........... indicating the length of the path from the root to the last level.",
+                options: ["medium", "attribute", "technique", "representation", "list"],
+                correct: 1
+            },
+            {
+                question: "With modularity concerns are separated and Modules are planned to perform ..............",
+                options: ["Functional integrity", "frequent releases", "engineering principles", "discrete functions", "scientific methods"],
+                correct: 3
+            },
+            {
+                question: "Traditional fields of engineering are using generic pre fabricated components so as to construct complex systems. while software engineering is inventing its own ..............",
+                options: ["mass market", "individual contractor", "company specifications", "domain-specific components", "consistent communication"],
+                correct: 3
+            },
+            {
+                question: "\"characteristic\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["derive", "attribute", "prevalent", "determine", "fixed"],
+                correct: 1
+            },
+            {
+                question: "\"repetitive\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["iterative", "quest", "deduce", "varying", "pertinent"],
+                correct: 0
+            },
+            {
+                question: "\"bypass\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["discriminating", "inference", "anticipate", "circumvent", "assume"],
+                correct: 3
+            },
+            {
+                question: "\"Regression applies statistical processes for estimating the relationships among variables.\" cümlesinin çevirisi hangisidir?",
+                options: ["Regresyon, değişkenler arasındaki ilişkileri tahmin etmek için mantıksal süreçler uygular.", "Regresyon, değişkenler arasındaki ilişkileri tahmin etmek için istatistiksel süreçler tasarlar.", "Regresyon, değişkenler arasındaki ilişkileri hesaplamak için istatistiksel süreçler uygular.", "Regresyon, değişkenler arasındaki ilişkileri tahmin etmek için istatistiksel süreçler uygular.", "Regresyon, denklemler arasındaki ilişkileri tahmin etmek için istatistiksel süreçler uygular."],
+                correct: 3
+            },
+            {
+                question: "\"Neural network\" teriminin tanımı (definition) hangisidir?",
+                options: ["Training a model to maximize a reward via iterative trial and error.", "Predicting an output of continuous values.", "A circuit of neurons.", "A class of ML tasks that combine a small amount of labeled data with a large amount of unlabeled data.", "Training a model by using labeled datasets and specified input-output pairs."],
+                correct: 2
+            },
+            {
+                question: "\"Feature selection\" teriminin tanımı (definition) hangisidir?",
+                options: ["A machine learning method based on learning data representations instead of task-specific algorithms.", "A specific representation of a dataset after a certain algorithm has been trained on that dataset.", "The process of deciding which subset of relevant features will be used in the construction of a model.", "A set of observations used to generate machine learning models.", "Predicting a categorical output."],
+                correct: 2
+            },
+            {
+                question: "The array consists of a .......... collection of values.",
+                options: ["relationships", "matrices", "sequenced", "descendants", "head"],
+                correct: 2
+            },
+            {
+                question: "The beginning of the list is called the head, and the other end of the list is called the ..............",
+                options: ["instances", "removing", "tail", "tuples", "operations"],
+                correct: 2
+            },
+            {
+                question: "\"Use a quotation from an expert that sums up your work.\" cümlesinin çevirisi hangisidir?",
+                options: ["Çalışmanızı özetleyen bir yazardan alıntı kullanın.", "Çalışmanızı eleştiren bir uzmandan alıntı kullanın.", "Projenizi özetleyen bir uzmandan alıntı kullanın.", "Çalışmanızı özetleyen bir uzmandan alıntı kullanın.", "Çalışmanızı özetleyen bir uzmandan çeviri kullanın."],
+                correct: 3
+            },
+            {
+                question: "\"A data structure is an organization framework that enables efficient ............. of data.\"",
+                options: ["meaningful information sources", "data values", "abstract tools", "data aggregates", "access and modification"],
+                correct: 4
+            },
+            {
+                question: "\"Therefore, not only is it important to share information but also to control access to it.\" cümlesinin açıklaması (paraphrase) hangisidir?",
+                options: ["Data can become irrelevant if users lose their interest in it.", "Sharing information can be risky.", "Stacks and queues dictate new data restrictions to lists.", "Data can be more easily retrieved when it is efficiently stored.", "Controlling information can be inaccessible."],
+                correct: 1
+            },
+            {
+                question: "\"The DBMS is implemented as an required result is achieved\" cümlesinin açıklaması (paraphrase) hangisidir?",
+                options: ["The application software is greatly focuses on accessing the database.", "The DBMS influences the results-user expectations.", "The DBMS manipulates the content to reach the desired result.", "The way data is structured can influence free appreciate information.", "The way data is arranged can affect the with the relevant information."],
+                correct: 2
+            },
+            {
+                question: "\"Hardware\" teriminin tanımı (definition) hangisidir?",
+                options: ["the meaning of language statements", "the formatting rules of a language", "the part of an operating system", "the mathematical model for a device", "the physical components of a computer"],
+                correct: 4
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = -1;
+        let answered = false;
+        let answers = Array(questions.length).fill(null); // Store answers for each question
+        let shuffledOrders = Array(questions.length).fill(null); // Store shuffled options for each question
+
+        // Function to shuffle options while preserving correct answer
+        function shuffleOptions(options, correctIndex) {
+            const indexedOptions = options.map((option, index) => ({ option, index }));
+            for (let i = indexedOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indexedOptions[i], indexedOptions[j]] = [indexedOptions[j], indexedOptions[i]];
+            }
+            const newCorrectIndex = indexedOptions.findIndex(item => item.index === correctIndex);
+            return {
+                shuffledOptions: indexedOptions.map(item => item.option),
+                newCorrectIndex
+            };
+        }
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            let shuffledOptions, newCorrectIndex;
+
+            // Use stored shuffled order if available, otherwise shuffle
+            if (shuffledOrders[currentQuestion] === null) {
+                const shuffleResult = shuffleOptions(question.options, question.correct);
+                shuffledOptions = shuffleResult.shuffledOptions;
+                newCorrectIndex = shuffleResult.newCorrectIndex;
+                shuffledOrders[currentQuestion] = { shuffledOptions, newCorrectIndex };
+            } else {
+                shuffledOptions = shuffledOrders[currentQuestion].shuffledOptions;
+                newCorrectIndex = shuffledOrders[currentQuestion].newCorrectIndex;
+            }
+
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            shuffledOptions.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                if (answers[currentQuestion] !== null) {
+                    optionDiv.classList.add('disabled');
+                    if (index === newCorrectIndex) {
+                        optionDiv.classList.add('correct');
+                    } else if (index === answers[currentQuestion] && index !== newCorrectIndex) {
+                        optionDiv.classList.add('incorrect');
+                    }
+                } else {
+                    optionDiv.onclick = () => selectAnswer(index, newCorrectIndex);
+                }
+                if (index === answers[currentQuestion]) {
+                    optionDiv.classList.add('selected');
+                }
+                optionDiv.innerHTML = `
+                    <span class="option-label">${String.fromCharCode(65 + index)})</span>
+                    <span>${option}</span>
+                `;
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            updateProgressBar();
+            document.getElementById('nextBtn').disabled = answers[currentQuestion] === null;
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+        }
+
+        function selectAnswer(index, correctIndex) {
+            if (answered || answers[currentQuestion] !== null) return;
+            
+            selectedAnswer = index;
+            answers[currentQuestion] = index;
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            
+            setTimeout(() => {
+                answered = true;
+                
+                options.forEach((opt, i) => {
+                    opt.classList.add('disabled');
+                    if (i === correctIndex) {
+                        opt.classList.add('correct');
+                    } else if (i === selectedAnswer && i !== correctIndex) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+                
+                if (selectedAnswer === correctIndex) {
+                    score++;
+                }
+                
+                document.getElementById('nextBtn').disabled = false;
+            }, 500);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                answered = false;
+                displayQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                answered = answers[currentQuestion] !== null;
+                displayQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            const scoreCircle = document.getElementById('scoreCircle');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDetails = document.getElementById('resultDetails');
+            
+            document.getElementById('scorePercentage').textContent = percentage + '%';
+            resultDetails.textContent = `${questions.length} sorudan ${score} tanesini doğru cevapladınız`;
+            
+            if (percentage >= 90) {
+                scoreCircle.className = 'score-circle score-excellent';
+                resultTitle.textContent = 'Mükemmel! 🎉';
+            } else if (percentage >= 70) {
+                scoreCircle.className = 'score-circle score-good';
+                resultTitle.textContent = 'Çok İyi! 👏';
+            } else if (percentage >= 50) {
+                scoreCircle.className = 'score-circle score-average';
+                resultTitle.textContent = 'Fena Değil 👍';
+            } else {
+                scoreCircle.className = 'score-circle score-poor';
+                resultTitle.textContent = 'Geliştirme Gerekli 📚';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answers = Array(questions.length).fill(null);
+            shuffledOrders = Array(questions.length).fill(null); // Reset shuffled orders
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            answered = false;
+            displayQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        displayQuestion();
+    </script>
+</body>
+</html>

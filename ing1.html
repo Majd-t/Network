@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İnteraktif Bilgi Sınavı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth; /* Smooth scrolling */
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1127 0%, #2e1a47 100%); /* Deep purple-dark gradient */
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e7ff;
+            position: relative;
+            overflow-y: auto; /* Allow scrolling */
+        }
+
+        /* Network-inspired background animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="2" fill="rgba(139,92,246,0.3)"/></svg>') repeat;
+            opacity: 0.2;
+            animation: networkFlow 12s linear infinite;
+        }
+
+        @keyframes networkFlow {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(17, 24, 39, 0.95); /* Deep dark semi-transparent */
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: linear-gradient(45deg, #7c3aed, #db2777); /* Vibrant purple to neon pink */
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.25;
+            animation: pulse 3.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.25; }
+            50% { opacity: 0.5; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5), 0 0 5px rgba(219, 39, 119, 0.5);
+            font-weight: 700;
+            position: relative;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 5px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(45deg, #db2777, #ec4899); /* Neon pink gradient */
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            width: 0%;
+            box-shadow: 0 0 15px rgba(219, 39, 119, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 1.2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .quiz-container {
+            padding: 40px;
+            overflow-y: auto; /* Allow scrolling within quiz container */
+            max-height: calc(100vh - 200px); /* Adjust based on header and padding */
+        }
+
+        .question-card {
+            background: rgba(31, 41, 55, 0.9); /* Dark card with subtle transparency */
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            border-color: #db2777;
+        }
+
+        .question-number {
+            background: linear-gradient(45deg, #7c3aed, #db2777);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #e0e7ff;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(51, 65, 85, 0.7); /* Dark option background */
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover, .option:active {
+            border-color: #db2777;
+            background: rgba(51, 65, 85, 0.9);
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(219, 39, 119, 0.4);
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><line x1="0" y1="10" x2="20" y2="10" stroke="rgba(139,92,246,0.3)" stroke-width="1"/><line x1="10" y1="0" x2="10" y2="20" stroke="rgba(139,92,246,0.3)" stroke-width="1"/></svg>') repeat;
+            opacity: 0.25;
+        }
+
+        .option.selected {
+            border-color: #db2777;
+            background: rgba(71, 85, 105, 0.9);
+        }
+
+        .option.correct {
+            background: linear-gradient(45deg, #22c55e, #16a34a); /* Green for correct */
+            color: white;
+            border-color: #22c55e;
+            animation: correctPulse 0.6s ease;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+        }
+
+        .option.incorrect {
+            background: linear-gradient(45deg, #ef4444, #dc2626); /* Red for incorrect */
+            color: white;
+            border-color: #ef4444;
+            animation: incorrectShake 0.6s ease;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 30px;
+            color: #e0e7ff;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+
+        .next-btn, .prev-btn {
+            background: linear-gradient(45deg, #7c3aed, #db2777);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(219, 39, 119, 0.4);
+            position: relative;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .next-btn:hover, .prev-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(219, 39, 119, 0.6);
+            background: linear-gradient(45deg, #6d28d9, #ec4899);
+        }
+
+        .next-btn::after, .prev-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(219, 39, 119, 0.4), transparent);
+            animation: shimmer 1.2s linear infinite;
+            opacity: 0;
+        }
+
+        .next-btn:hover::after, .prev-btn:hover::after {
+            opacity: 1;
+        }
+
+        .next-btn:disabled, .prev-btn:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .results {
+            text-align: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            animation: rotateIn 1s ease-out;
+        }
+
+        @keyframes rotateIn {
+            from { transform: rotate(-10deg); opacity: 0; }
+            to { transform: rotate(0); opacity: 1; }
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0.3;
+            animation: pulse 3.5s ease-in-out infinite;
+        }
+
+        .score-excellent {
+            background: linear-gradient(45deg, #22c55e, #16a34a);
+        }
+
+        .score-good {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+        }
+
+        .score-average {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+        }
+
+        .score-poor {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+        }
+
+        .results h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #e0e7ff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-details {
+            font-size: 1.3em;
+            color: #c7d2fe;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #7c3aed, #db2777);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(219, 39, 119, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(219, 39, 119, 0.6);
+            background: linear-gradient(45deg, #6d28d9, #ec4899);
+        }
+
+        .restart-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(219, 39, 119, 0.4), transparent);
+            animation: shimmer 1.2s linear infinite;
+            opacity: 0;
+        }
+
+        .restart-btn:hover::after {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                margin: 5px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .quiz-container {
+                padding: 20px;
+                max-height: calc(100vh - 150px); /* Adjusted for smaller screens */
+            }
+
+            .question-card {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .question-number {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9em;
+            }
+
+            .question-text {
+                font-size: 1em;
+                margin-bottom: 15px;
+            }
+
+            .option {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .button-container {
+                flex-direction: row;
+                gap: 8px;
+            }
+
+            .next-btn, .prev-btn {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+
+            .score-circle {
+                width: 140px;
+                height: 140px;
+                font-size: 2.2em;
+            }
+
+            .results {
+                padding: 20px;
+            }
+
+            .results h2 {
+                font-size: 1.8em;
+            }
+
+            .results-details {
+                font-size: 1em;
+            }
+
+            .restart-btn {
+                padding: 10px 30px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .quiz-container {
+                padding: 15px;
+                max-height: calc(100vh - 120px);
+            }
+
+            .question-text {
+                font-size: 0.9em;
+            }
+
+            .option {
+                font-size: 0.85em;
+                padding: 8px 12px;
+            }
+
+            .next-btn, .prev-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+
+            .score-circle {
+                width: 120px;
+                height: 120px;
+                font-size: 2em;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bilgi Sınavı 🌐</h1>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer" class="quiz-container">
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="button-container">
+                    <button class="prev-btn" id="prevBtn" onclick="prevQuestion()" disabled>Önceki Soru</button>
+                    <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Sonraki Soru</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsContainer" class="results hidden">
+            <div class="score-circle" id="scoreCircle">
+                <span id="scorePercentage"></span>
+            </div>
+            <h2 id="resultTitle"></h2>
+            <div class="results-details" id="resultDetails"></div>
+            <button class="restart-btn" onclick="restartQuiz()">Sınavı Yeniden Başlat</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "He studied hard ........... he graduated. cümlesindeki boşluk için zaman kelimesi (time word) hangisidir?",
+                options: ["until", "for", "during", "latoly", "so far"],
+                correct: 0
+            },
+            {
+                question: "Numerous companies act as Internet Service Providers (ISP) .............. customers to connect their domains to the Internet. cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["allowing", "evolved", "associated", "officially", "unique"],
+                correct: 0
+            },
+            {
+                question: "Scientists often have the ............... of a better and fairer world. cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["functionality", "resource", "vision", "sophisticated", "guidelines"],
+                correct: 2
+            },
+            {
+                question: "................. there has been a decline in internet use. cümlesindeki boşluk için uygun kelime hangisidir?",
+                options: ["Since", "During", "Later", "Currently", "Recently"],
+                correct: 4
+            },
+            {
+                question: "\"broadcast\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["peculiar characteristic", "transmit via signals", "able to be switched", "space between", "whole, unbroken"],
+                correct: 1
+            },
+            {
+                question: "\"recipient\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["copy", "product", "different", "terminate", "addressee"],
+                correct: 4
+            },
+            {
+                question: "The World Wide Web (WWW), or the Web, is an application that allows ........ information to be shared across the Internet. cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["program", "multimedia", "document", "hypertext", "transfer"],
+                correct: 3
+            },
+            {
+                question: "The life.......... of a commodity connotes their determined life cycle. cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["acknowledged", "span", "underlying", "framework", "integrity"],
+                correct: 1
+            },
+            {
+                question: "OSI katmanlarından biri olan Fiziksel Katman'ın (Physical Layer) temel özelliği hangisidir?",
+                options: ["It encodes and decodes bits into groups of bits.", "It enables the user, whether human or software, to access the network.", "It organizes bits into logical units called frames.", "It is responsible for end-to-end delivery of the entire message", "It controls the dialog between users."],
+                correct: 0
+            },
+            {
+                question: "\"convenient\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["relieve", "monotonous", "attractive", "correspondent", "suitable"],
+                correct: 4
+            },
+            {
+                question: "\"permanent\" kelimesinin zıt anlamlısı (antonym) hangisidir?",
+                options: ["temporary", "rigid", "major", "detach", "decrease"],
+                correct: 0
+            },
+            {
+                question: "It is a thin ............ disk with magnetic coating that is used to hold data. cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["spinning", "contain", "heads", "continuous", "consists"],
+                correct: 0
+            },
+            {
+                question: "\"groove\" kelimesinin tanımı (definition) hangisidir?",
+                options: ["Having a granular texture.", "A long, narrow cut or depression in a hard material.", "A tendency to change quickly and unpredictably.", "A rod serving as an axis that revolves.", "Circles, arcs, or other shapes which share the same center."],
+                correct: 1
+            },
+            {
+                question: "\"shrink\" fiilinin eş anlamlısı (synonym) hangisidir?",
+                options: ["supply", "look for", "make smaller", "find the answer", "not deliberately"],
+                correct: 2
+            },
+            {
+                question: "\"matter\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["thread", "thickness", "substance", "growth", "failure"],
+                correct: 2
+            },
+            {
+                question: "\"supervise\" kelimesinin açıklaması hangisidir?",
+                options: ["oversee and direct", "requirement", "operating system", "put in order so as to make more efficient", "usable on many computers with only little modification"],
+                correct: 0
+            },
+            {
+                question: "The first...... used in multiprogramming in partitioning cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["technique", "variable", "overhead", "fit", "location"],
+                correct: 0
+            },
+            {
+                question: "\"adjacent\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["protection", "contiguous", "restriction", "priceless", "detailed"],
+                correct: 1
+            },
+            {
+                question: "\"concurrent\" kelimesinin açıklaması hangisidir?",
+                options: ["change the connections in an electrical circuit", "put in position", "a constituent part", "operate at the same time", "check and keep track of"],
+                correct: 3
+            },
+            {
+                question: "\"exhaust\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["basic expenses", "pack densely", "use up", "insert between", "put into effect"],
+                correct: 2
+            },
+            {
+                question: "Some communities impede technological progress .......... people will be faced with a new form of slavery. cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["increasingly", "on the grounds that", "but the real question is", "many people think", "as we shall see"],
+                correct: 1
+            },
+            {
+                question: "The computers of the 1940s and 1950s .......... entire rooms. cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["accompanied", "occupied", "reserve", "submit", "batch"],
+                correct: 1
+            },
+            {
+                question: "\"Literature review\" terimini karşılayan açıklama hangisidir?",
+                options: ["The examination of a specific group or phenomenon in order to extract key themes and findings.", "A list of all the sources the writer has examined and used in their written assignment.", "A brief summary of a research article.", "A synthesis and evaluation of older material on the chosen topic.", "Supplementary material at the end of a book."],
+                correct: 3
+            },
+            {
+                question: "Aşağıdakilerden hangisi \"insight\" ile benzer anlamdadır?",
+                options: ["engine", "step", "set up", "stage", "understanding"],
+                correct: 4
+            },
+            {
+                question: "Aşağıdakilerden hangisi \"convert\" ile benzer anlamdadır?",
+                options: ["calculate", "change", "sophisticated", "design", "store"],
+                correct: 1
+            },
+            {
+                question: "\"benevolent\" kelimesinin zıt anlamlısı (antonym) hangisidir?",
+                options: ["commercial", "current", "malicious", "automatic", "fixed"],
+                correct: 2
+            },
+            {
+                question: "\"expand\" kelimesinin zıt anlamlısı (antonym) hangisidir?",
+                options: ["decrypt", "decode", "digital", "condense", "obsolete"],
+                correct: 3
+            },
+            {
+                question: "This procedure can expedite operations; if the word is in the cache, it is ......... immediately. cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["efficient", "processing", "observed", "accessed", "existence"],
+                correct: 3
+            },
+            {
+                question: "\"expedite\" kelimesi hangisi ile eşleştirilebilir?",
+                options: ["process faster", "point out", "form an idea", "make easier", "not extreme"],
+                correct: 0
+            },
+            {
+                question: "An ........... is designed to calculate any logical, or arithmetic operation. cümlesindeki boşluk için uygun terim hangisidir?",
+                options: ["Registers", "Address space", "CPU", "Address bus", "ALU"],
+                correct: 4
+            },
+            {
+                question: "This research makes it apparent that the candidates were expert writers. cümlesindeki altı çizili ifade hangisi ile eşleştirilebilir?",
+                options: ["prove", "distinguish", "discuss", "summarize", "demonstrate"],
+                correct: 4
+            },
+            {
+                question: "\"method\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["increase", "production", "approach", "findings", "structure"],
+                correct: 2
+            },
+            {
+                question: "\"give a short description of the main points\" ifadesi aşağıdaki hangi fiil ile eşleştirilebilir?",
+                options: ["illustrate", "compare", "outline", "estimate", "enumerate"],
+                correct: 2
+            },
+            {
+                question: "Data can be .......... into beautiful shapes. cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["trajectory", "sculpted", "efficiency", "birthing", "transmit"],
+                correct: 1
+            },
+            {
+                question: "\"terminate\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["complex", "come to an end", "limited", "escape, elude", "counterbalance"],
+                correct: 1
+            },
+            {
+                question: "The algorithm is expected to be simple enough to be handled, but no simpler than necessary cümlesinin açıklaması (paraphrase) hangisidir?",
+                options: ["Users can apply intuitive insight in order to understand the details of an algorithm", "You can simplify the representation of a problem, but still produce a valid solution", "Approximate solutions are not legitimate in the context of heuristics", "Analysts are interested in finding the best solution for a given real-world problem", "Computers can figure out the logical order of a set of instructions"],
+                correct: 1
+            },
+            {
+                question: "\"indiscernible\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["impossible to distinguish", "lack of solution", "inherent", "easy to understand", "clear in meaning"],
+                correct: 0
+            },
+            {
+                question: "Our visual cortex was built to decode complex information and is a master at pattern .......... cümlesindeki boşluk için uygun ifade hangisidir?",
+                options: ["mapped", "dot", "recognition", "specialized", "arcs"],
+                correct: 2
+            },
+            {
+                question: "\"iteration\" kelimesinin eş anlamlısı (synonym) hangisidir?",
+                options: ["following, consecutive", "disintegrate", "general agreement", "repetition", "abstract"],
+                correct: 3
+            },
+            {
+                question: "\"literacy\" teriminin tanımı (definition) hangisidir?",
+                options: ["ability to reason with numerical concepts", "ability to read and write graphics", "oral skills in education", "ability to reason with logical concepts", "ability to read and write"],
+                correct: 4
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = -1;
+        let answered = false;
+        let answers = Array(questions.length).fill(null); // Store answers for each question
+        let shuffledOrders = Array(questions.length).fill(null); // Store shuffled options for each question
+
+        // Function to shuffle options while preserving correct answer
+        function shuffleOptions(options, correctIndex) {
+            const indexedOptions = options.map((option, index) => ({ option, index }));
+            for (let i = indexedOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indexedOptions[i], indexedOptions[j]] = [indexedOptions[j], indexedOptions[i]];
+            }
+            const newCorrectIndex = indexedOptions.findIndex(item => item.index === correctIndex);
+            return {
+                shuffledOptions: indexedOptions.map(item => item.option),
+                newCorrectIndex
+            };
+        }
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            let shuffledOptions, newCorrectIndex;
+
+            // Use stored shuffled order if available, otherwise shuffle
+            if (shuffledOrders[currentQuestion] === null) {
+                const shuffleResult = shuffleOptions(question.options, question.correct);
+                shuffledOptions = shuffleResult.shuffledOptions;
+                newCorrectIndex = shuffleResult.newCorrectIndex;
+                shuffledOrders[currentQuestion] = { shuffledOptions, newCorrectIndex };
+            } else {
+                shuffledOptions = shuffledOrders[currentQuestion].shuffledOptions;
+                newCorrectIndex = shuffledOrders[currentQuestion].newCorrectIndex;
+            }
+
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            shuffledOptions.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                if (answers[currentQuestion] !== null) {
+                    optionDiv.classList.add('disabled');
+                    if (index === newCorrectIndex) {
+                        optionDiv.classList.add('correct');
+                    } else if (index === answers[currentQuestion] && index !== newCorrectIndex) {
+                        optionDiv.classList.add('incorrect');
+                    }
+                } else {
+                    optionDiv.onclick = () => selectAnswer(index, newCorrectIndex);
+                }
+                if (index === answers[currentQuestion]) {
+                    optionDiv.classList.add('selected');
+                }
+                optionDiv.innerHTML = `
+                    <span class="option-label">${String.fromCharCode(65 + index)})</span>
+                    <span>${option}</span>
+                `;
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            updateProgressBar();
+            document.getElementById('nextBtn').disabled = answers[currentQuestion] === null;
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+        }
+
+        function selectAnswer(index, correctIndex) {
+            if (answered || answers[currentQuestion] !== null) return;
+            
+            selectedAnswer = index;
+            answers[currentQuestion] = index;
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            
+            setTimeout(() => {
+                answered = true;
+                
+                options.forEach((opt, i) => {
+                    opt.classList.add('disabled');
+                    if (i === correctIndex) {
+                        opt.classList.add('correct');
+                    } else if (i === selectedAnswer && i !== correctIndex) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+                
+                if (selectedAnswer === correctIndex) {
+                    score++;
+                }
+                
+                document.getElementById('nextBtn').disabled = false;
+            }, 500);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                answered = false;
+                displayQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                answered = answers[currentQuestion] !== null;
+                displayQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            const scoreCircle = document.getElementById('scoreCircle');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDetails = document.getElementById('resultDetails');
+            
+            document.getElementById('scorePercentage').textContent = percentage + '%';
+            resultDetails.textContent = `${questions.length} sorudan ${score} tanesini doğru cevapladınız`;
+            
+            if (percentage >= 90) {
+                scoreCircle.className = 'score-circle score-excellent';
+                resultTitle.textContent = 'Mükemmel! 🎉';
+            } else if (percentage >= 70) {
+                scoreCircle.className = 'score-circle score-good';
+                resultTitle.textContent = 'Çok İyi! 👏';
+            } else if (percentage >= 50) {
+                scoreCircle.className = 'score-circle score-average';
+                resultTitle.textContent = 'Fena Değil 👍';
+            } else {
+                scoreCircle.className = 'score-circle score-poor';
+                resultTitle.textContent = 'Geliştirme Gerekli 📚';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answers = Array(questions.length).fill(null);
+            shuffledOrders = Array(questions.length).fill(null); // Reset shuffled orders
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            answered = false;
+            displayQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        displayQuestion();
+    </script>
+</body>
+</html>
